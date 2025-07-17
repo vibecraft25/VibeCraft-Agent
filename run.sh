@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# VibeCraft v2.0 실행 스크립트
+# VibeCraft Agent 실행 스크립트
 
 # 색상 정의
 GREEN='\033[0;32m'
@@ -31,5 +31,5 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Python 스크립트 실행
-echo -e "${GREEN}🚀 VibeCraft v2.0 시작...${NC}"
+echo -e "${GREEN}🚀 VibeCraft Agent 시작...${NC}"
 python3 "$SCRIPT_DIR/vibecraft.py" "$@"

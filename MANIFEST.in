@@ -1,0 +1,29 @@
+# 패키지에 포함할 파일들
+
+# 문서 파일
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include CHANGELOG.md
+
+# 시스템 프롬프트 파일
+include vibecraft-system-prompt.md
+include vibecraft-system-prompt-verbose.md
+
+# 설정 파일
+include requirements.txt
+include pytest.ini
+
+# 예제 파일
+recursive-include examples *.csv *.json *.html
+recursive-include examples *.md
+
+# 테스트 파일
+recursive-include tests *.py
+
+# 제외할 파일
+exclude .env
+exclude .env.example
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store

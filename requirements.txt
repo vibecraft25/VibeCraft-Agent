@@ -1,0 +1,23 @@
+# VibeCraft Agent Requirements
+
+# Core dependencies
+# This project uses only Python standard library for core functionality
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Code quality tools
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+isort>=5.12.0
+
+# Documentation
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.2.0
+
+# Optional: For enhanced functionality
+python-dotenv>=1.0.0  # For .env file support
+EOF < /dev/null

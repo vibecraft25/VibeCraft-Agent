@@ -1,0 +1,66 @@
+{
+  "title": "2024년 1월 서울 날씨 데이터",
+  "location": "서울",
+  "unit": {
+    "temperature": "°C",
+    "humidity": "%",
+    "wind_speed": "m/s"
+  },
+  "data": [
+    {
+      "date": "2024-01-01",
+      "temperature": {
+        "min": -5,
+        "max": 3,
+        "avg": -1
+      },
+      "humidity": 45,
+      "wind_speed": 2.3,
+      "condition": "맑음"
+    },
+    {
+      "date": "2024-01-02",
+      "temperature": {
+        "min": -3,
+        "max": 5,
+        "avg": 1
+      },
+      "humidity": 52,
+      "wind_speed": 1.8,
+      "condition": "구름많음"
+    },
+    {
+      "date": "2024-01-03",
+      "temperature": {
+        "min": -1,
+        "max": 7,
+        "avg": 3
+      },
+      "humidity": 60,
+      "wind_speed": 3.1,
+      "condition": "흐림"
+    },
+    {
+      "date": "2024-01-04",
+      "temperature": {
+        "min": 2,
+        "max": 8,
+        "avg": 5
+      },
+      "humidity": 75,
+      "wind_speed": 4.2,
+      "condition": "비"
+    },
+    {
+      "date": "2024-01-05",
+      "temperature": {
+        "min": -2,
+        "max": 4,
+        "avg": 1
+      },
+      "humidity": 40,
+      "wind_speed": 2.5,
+      "condition": "맑음"
+    }
+  ]
+}
