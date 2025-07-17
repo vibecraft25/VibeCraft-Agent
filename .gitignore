@@ -1,0 +1,15 @@
+# 환경 설정 파일
+.env
+
+# 생성된 대시보드 파일
+vibecraft-dashboard.html
+requirements/
+
+# 임시 파일
+*.tmp
+*.log
+*.html
+
+# 운영체제 파일
+.DS_Store
+Thumbs.db
