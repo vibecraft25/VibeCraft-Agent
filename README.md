@@ -1,10 +1,10 @@
-# VibeCraft v2.0 - Gemini CLI Edition
+# VibeCraft - Gemini CLI Edition
 
 Gemini CLI를 활용한 원샷 프롬프팅 데이터 시각화 도구
 
 ## 개요
 
-VibeCraft v2.0은 Gemini CLI를 사용하여 자연어 요청을 통해 데이터 시각화를 자동으로 생성하는 도구입니다. 복잡한 설정 없이 단일 명령으로 인터랙티브한 HTML 대시보드를 생성합니다.
+VibeCraft은 Gemini CLI를 사용하여 자연어 요청을 통해 데이터 시각화를 자동으로 생성하는 도구입니다. 복잡한 설정 없이 단일 명령으로 인터랙티브한 HTML 대시보드를 생성합니다.
 
 ## 필수 요구사항
 
@@ -71,7 +71,7 @@ python3 vibecraft.py data.csv "분포를 히스토그램으로" -o my-report.htm
 ## 파일 구조
 
 ```
-vibecraft-agent-v2/
+vibecraft-agent/
 ├── vibecraft.py                # 메인 Python 스크립트
 ├── vibecraft-system-prompt.md  # Gemini용 시스템 프롬프트
 ├── run.sh                      # 실행 편의 스크립트
