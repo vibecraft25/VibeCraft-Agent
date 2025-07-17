@@ -19,10 +19,6 @@ VibeCraft은 Gemini CLI를 사용하여 자연어 요청을 통해 데이터 시
 # Gemini CLI 설치 (아직 설치하지 않은 경우)
 # 설치 가이드: https://github.com/google-gemini/gemini-cli
 
-# 인증
-gemini auth login
-```
-
 2. 실행 권한 설정:
 ```bash
 chmod +x run.sh vibecraft.py
@@ -83,13 +79,6 @@ vibecraft-agent/
 
 ## 트러블슈팅
 
-### Gemini CLI 인증 오류
-```bash
-# 재인증
-gemini auth logout
-gemini auth login
-```
-
 ### API 권한 오류
 - Google Cloud Console에서 Gemini API 활성화 확인
 - 프로젝트 권한 확인
@@ -100,4 +89,4 @@ gemini auth login
 
 ## 라이선스
 
-MIT License
+Apache License 2.0
