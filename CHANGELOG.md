@@ -4,6 +4,30 @@
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/spec/v2.0.0.html)을 따릅니다.
 
+## [2.1.0] - 2025-01-18
+
+### 🎉 주요 변경사항
+- 기본 시스템 프롬프트를 verbose 버전으로 변경
+- 레거시 파일 정리 및 코드베이스 단순화
+
+### 🔧 개선사항
+- `vibecraft-system-prompt-verbose.md`가 기본값으로 설정됨
+- 모든 실행에서 상세한 진행 상황 출력이 기본 동작
+- `vibecraft-system-prompt.md`를 `vibecraft-system-prompt-simple.md`로 이름 변경
+- 리팩터링 과정의 임시 파일들 제거
+
+### 🧹 정리된 파일들
+- `vibecraft_original.py` - 삭제됨
+- `vibecraft_refactored.py` - 삭제됨  
+- `test_refactored.py` - 삭제됨
+- `comparison_demo.py` - 삭제됨
+- `demo_data.csv` - 삭제됨
+
+### 📚 코드 변경사항
+- `setup_environment()` 함수의 파라미터를 `verbose`에서 `simple_mode`로 변경
+- `create_enhanced_prompt()` 함수의 `verbose` 기본값을 `True`로 변경
+- 테스트 코드 업데이트로 새로운 기본 동작 반영
+
 ## [2.0.0] - 2025-07-17
 
 ### 🎉 주요 변경사항

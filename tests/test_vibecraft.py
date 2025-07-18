@@ -23,7 +23,7 @@ from vibecraft import (
     GeminiExecutionError,
     DEFAULT_OUTPUT_FILE,
     GEMINI_SYSTEM_PROMPT,
-    GEMINI_SYSTEM_PROMPT_VERBOSE
+    GEMINI_SYSTEM_PROMPT_SIMPLE
 )
 
 
@@ -52,7 +52,7 @@ QUOTED_VAR="quoted value"
             # 환경 변수 초기화
             os.environ.pop('GOOGLE_CLOUD_PROJECT', None)
             
-            setup_environment(verbose=False)
+            setup_environment(simple_mode=True)
             
             # 환경 변수 확인
             assert os.environ.get('TEST_VAR') == 'test_value'
@@ -85,14 +85,14 @@ QUOTED_VAR="quoted value"
             with pytest.raises(EnvironmentError, match="GOOGLE_CLOUD_PROJECT 환경변수가 설정되지 않았습니다"):
                 setup_environment()
     
-    def test_setup_environment_verbose_mode(self, tmp_path):
-        """Verbose 모드에서 시스템 프롬프트 설정 테스트"""
+    def test_setup_environment_simple_mode(self, tmp_path):
+        """Simple 모드에서 시스템 프롬프트 설정 테스트"""
         # 두 개의 시스템 프롬프트 파일 생성
-        prompt_file = tmp_path / GEMINI_SYSTEM_PROMPT
-        prompt_file.write_text("Default prompt")
+        prompt_file = tmp_path / GEMINI_SYSTEM_PROMPT  # verbose (기본값)
+        prompt_file.write_text("Verbose prompt")
         
-        verbose_prompt_file = tmp_path / GEMINI_SYSTEM_PROMPT_VERBOSE
-        verbose_prompt_file.write_text("Verbose prompt")
+        simple_prompt_file = tmp_path / GEMINI_SYSTEM_PROMPT_SIMPLE
+        simple_prompt_file.write_text("Simple prompt")
         
         with patch('vibecraft.Path') as mock_path:
             mock_path.return_value.parent = tmp_path
@@ -100,29 +100,29 @@ QUOTED_VAR="quoted value"
             
             os.environ['GOOGLE_CLOUD_PROJECT'] = 'test-project'
             
-            setup_environment(verbose=True)
+            setup_environment(simple_mode=True)
             
-            # Verbose 프롬프트가 설정되었는지 확인
-            assert os.environ['GEMINI_SYSTEM_MD'] == str(tmp_path / GEMINI_SYSTEM_PROMPT_VERBOSE)
+            # Simple 프롬프트가 설정되었는지 확인
+            assert os.environ['GEMINI_SYSTEM_MD'] == str(tmp_path / GEMINI_SYSTEM_PROMPT_SIMPLE)
 
 
 class TestCreateEnhancedPrompt:
     """create_enhanced_prompt 함수 테스트"""
     
     def test_create_enhanced_prompt_basic(self):
-        """기본 프롬프트 생성 테스트"""
-        prompt = create_enhanced_prompt("data.csv", "막대 그래프 생성", verbose=False)
+        """기본 프롬프트 생성 테스트 (기본값 verbose=True)"""
+        prompt = create_enhanced_prompt("data.csv", "막대 그래프 생성")
         
         assert "data.csv" in prompt
         assert "막대 그래프 생성" in prompt
         assert "파일 읽기:" in prompt
         assert "vibecraft-dashboard.html" in prompt
     
-    def test_create_enhanced_prompt_verbose(self):
-        """Verbose 모드 프롬프트 생성 테스트"""
-        prompt = create_enhanced_prompt("data.csv", "막대 그래프 생성", verbose=True)
+    def test_create_enhanced_prompt_without_verbose(self):
+        """verbose=False로 프롬프트 생성 테스트"""
+        prompt = create_enhanced_prompt("data.csv", "막대 그래프 생성", verbose=False)
         
-        assert "각 단계를 수행할 때마다 무엇을 하고 있는지 출력하세요" in prompt
+        assert "각 단계를 수행할 때마다 무엇을 하고 있는지 출력하세요" not in prompt
     
     def test_create_enhanced_prompt_absolute_path(self):
         """절대 경로 변환 테스트"""
