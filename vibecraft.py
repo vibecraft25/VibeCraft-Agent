@@ -374,15 +374,15 @@ def main() -> None:
     parser.add_argument("query", help="시각화 요구사항 (자연어)")
     parser.add_argument("-o", "--output", default=DEFAULT_OUTPUT_FILE, 
                         help=f"출력 HTML 파일명 (기본값: {DEFAULT_OUTPUT_FILE})")
-    parser.add_argument("-s", "--stream", action="store_true",
-                        help="Gemini CLI 실행 과정을 실시간으로 출력")
+    parser.add_argument("-s", "--simple", action="store_true",
+                        help="간단한 출력 모드 (스트리밍 비활성화)")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Gemini CLI 디버그 모드 활성화")
     
     args = parser.parse_args()
     
-    # 로깅 설정
-    setup_logging(verbose=args.stream or args.debug)
+    # 로깅 설정 - 기본값이 verbose=True
+    setup_logging(verbose=True)  # 항상 verbose 로깅 사용
     
     # 데이터 파일 확인
     data_path = Path(args.data_file)
@@ -416,7 +416,8 @@ def main() -> None:
     
     # Gemini CLI 실행
     try:
-        if run_gemini_cli(enhanced_prompt, args.output, stream=args.stream, debug=args.debug):
+        # 기본값으로 스트리밍 활성화, --simple 옵션으로 비활성화 가능
+        if run_gemini_cli(enhanced_prompt, args.output, stream=not args.simple, debug=args.debug):
             logger.info(f"시각화 생성 완료: {args.output}")
             print(f"{EMOJI['web']} 브라우저에서 열기: file://{os.path.abspath(args.output)}")
         else:
