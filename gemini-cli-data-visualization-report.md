@@ -1132,7 +1132,7 @@ Create a complete React application with the following structure:
 
 ```mermaid
 graph LR
-    A[1. VibeCraft-viz 실행] -->|--data --template "request"| B[프로젝트 생성]
+    A[1. VibeCraft-viz 실행] -->|--data --template &quot;request&quot;| B[프로젝트 생성]
     B --> C[SQLite 생성]
     B --> D[.gemini/settings.json]
     B --> E[prompt.txt]
