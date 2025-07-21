@@ -21,7 +21,7 @@ class PromptGenerator:
                 "templates"
             )
     
-    def generate(self, user_request: str, template: str, data_info: Dict[str, Any]) -> str:
+    def generate(self, user_request: str, template: str, data_info: Dict[str, Any], output_path: str = None) -> str:
         """요구사항에 따라 React 앱 생성 프롬프트 생성"""
         # 템플릿별 특화 정보 가져오기
         template_info = self._get_template_info(template)
@@ -36,18 +36,23 @@ class PromptGenerator:
         component_structure = self._generate_component_structure(template)
         
         # 프롬프트 조합
+        output_dir = output_path if output_path else "output/"
         prompt = f"""다음 요구사항에 따라 완전한 React 데이터 시각화 애플리케이션을 생성해주세요:
 
 ## 사용자 요청
 {user_request}
 
+## 중요: 파일 생성 경로
+모든 파일은 반드시 다음 경로에 생성하세요:
+{output_dir}
+
 ## 프로젝트 구조
-Create a complete React application with the following structure:
-- package.json (with all dependencies)
-- src/App.js (main component)
-- src/components/ (visualization components)
-- src/utils/ (data processing utilities)
-- public/data.sqlite (copy from project root)
+Create a complete React application with the following structure in {output_dir}:
+- {output_dir}/package.json (with all dependencies)
+- {output_dir}/src/App.js (main component)
+- {output_dir}/src/components/ (visualization components)
+- {output_dir}/src/utils/ (data processing utilities)
+- {output_dir}/public/data.sqlite (copy from project root)
 
 ## 기술 스택
 - React 18.x
@@ -83,18 +88,39 @@ Create a complete React application with the following structure:
 {self._format_interactive_features(template_info['interactive_features'])}
 
 ## 코드 생성 규칙
-1. output/ 디렉토리에 모든 파일 생성
+1. 전체 파일 내용을 코드 블록으로 출력 (파일 경로와 함께)
 2. 즉시 실행 가능해야 함 (npm install && npm start)
-3. SQLite 파일은 public/data.sqlite로 복사
+3. SQLite 파일은 public/data.sqlite로 참조
 4. 에러 처리와 로딩 상태 구현
 5. 반응형 디자인 적용
 6. 주석으로 주요 로직 설명
+
+## 파일 출력 형식
+파일 작성 도구를 사용할 수 없는 경우, 각 파일의 전체 내용을 다음 형식으로 출력하세요:
+
+**File:** `{output_dir}/filename.ext`
+```언어
+파일 전체 내용...
+```
 
 ## 추가 요구사항
 - sql.js는 CDN이 아닌 npm 패키지로 설치하여 사용
 - 데이터베이스 연결 시 절대 경로가 아닌 상대 경로 사용
 - 브라우저에서 SQLite 파일을 fetch로 로드하여 sql.js로 실행
 - 모든 차트는 반응형으로 구현 (window resize 대응)
+
+## 중요 참고사항
+- 파일 작성 도구가 없어도 각 파일의 전체 내용을 위 형식으로 출력하세요
+- 모든 파일을 순서대로 출력하세요 (package.json부터 시작)
+- 각 파일은 즉시 실행 가능해야 합니다
+- 다음 파일들을 반드시 포함하세요:
+  1. {output_dir}/package.json
+  2. {output_dir}/public/index.html
+  3. {output_dir}/src/index.js
+  4. {output_dir}/src/index.css
+  5. {output_dir}/src/App.js
+  6. {output_dir}/src/components/* (필요한 모든 컴포넌트)
+  7. {output_dir}/src/utils/* (필요한 모든 유틸리티)
 
 지금 바로 전체 React 애플리케이션 코드를 생성해주세요."""
         

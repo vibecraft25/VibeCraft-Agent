@@ -1,0 +1,46 @@
+{
+  "metrics": [
+    {
+      "metric_name": "Revenue",
+      "metric_value": 125000,
+      "target_value": 150000,
+      "category": "Financial",
+      "period": "2024-Q1"
+    },
+    {
+      "metric_name": "Active Users",
+      "metric_value": 8500,
+      "target_value": 10000,
+      "category": "Engagement",
+      "period": "2024-Q1"
+    },
+    {
+      "metric_name": "Conversion Rate",
+      "metric_value": 3.5,
+      "target_value": 5.0,
+      "category": "Performance",
+      "period": "2024-Q1"
+    },
+    {
+      "metric_name": "Customer Satisfaction",
+      "metric_value": 4.2,
+      "target_value": 4.5,
+      "category": "Quality",
+      "period": "2024-Q1"
+    },
+    {
+      "metric_name": "Response Time",
+      "metric_value": 250,
+      "target_value": 200,
+      "category": "Performance",
+      "period": "2024-Q1"
+    },
+    {
+      "metric_name": "Market Share",
+      "metric_value": 18.5,
+      "target_value": 25.0,
+      "category": "Business",
+      "period": "2024-Q1"
+    }
+  ]
+}
