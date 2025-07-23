@@ -22,184 +22,38 @@ class PromptGenerator:
             )
     
     def generate(self, user_request: str, template: str, data_info: Dict[str, Any], output_path: str = None) -> str:
-        """요구사항에 따라 React 앱 생성 프롬프트 생성"""
-        # 템플릿별 특화 정보 가져오기
-        template_info = self._get_template_info(template)
-        
-        # 필요한 라이브러리 결정
-        libraries = self._get_required_libraries(template)
-        
-        # SQL 쿼리 예시 생성
-        sql_queries = self._generate_sql_queries(template, data_info)
-        
-        # 컴포넌트 구조 생성
-        component_structure = self._generate_component_structure(template)
-        
-        # 프롬프트 조합
+        """GEMINI.md를 활용한 간결한 프롬프트 생성"""
         output_dir = output_path if output_path else "output/"
-        prompt = f"""다음 요구사항에 따라 완전한 React 데이터 시각화 애플리케이션을 생성해주세요:
+        
+        # GEMINI.md가 있으므로 간결한 프롬프트만 생성
+        prompt = f"""Create a {template} dashboard for the following request:
 
-## 사용자 요청
-{user_request}
+"{user_request}"
 
-## 중요: 파일 생성 경로
-모든 파일은 반드시 다음 경로에 생성하세요:
-{output_dir}
-
-## 프로젝트 구조
-Create a complete React application with the following structure in {output_dir}:
-- {output_dir}/package.json (with all dependencies)
-- {output_dir}/src/App.js (main component)
-- {output_dir}/src/components/ (visualization components)
-- {output_dir}/src/utils/ (data processing utilities)
-- {output_dir}/public/data.sqlite (copy from project root)
-
-## 기술 스택
-- React 18.x
-- {libraries['chart_library']} for visualizations
-- sql.js for SQLite in browser
-- Tailwind CSS for styling
-{self._format_additional_libraries(libraries['additional'])}
-
-## 데이터 정보
-- File: data.sqlite (already in project root)
+Database Information:
 - Table: {data_info['table_name']}
 - Columns: {', '.join(data_info['columns'])}
-- Rows: {data_info['row_count']}
-{self._format_schema_info(data_info['schema'])}
-{self._format_date_columns(data_info.get('date_columns', []))}
+- Row Count: {data_info['row_count']}
 
-## 시각화 요구사항
-- Dashboard Type: {template_info['name']}
-- Goal: {user_request}
-- Required Features:
-{self._format_features(template_info['features'])}
+Output Directory: {output_dir}
 
-## 컴포넌트 구조
-{component_structure}
+CRITICAL REQUIREMENTS:
+1. Use the write_file tool to create all necessary files
+2. FIRST query the database to find the actual date range:
+   SELECT MIN(date) as min_date, MAX(date) as max_date FROM {data_info['table_name']}
+3. Initialize the date picker with the ACTUAL data range, not arbitrary dates
+4. Apply date filters in SQL queries when the user changes the date range
+5. Handle date format conversions properly between SQL strings and JavaScript Date objects
 
-## SQL 쿼리 예시
-{sql_queries}
-
-## 레이아웃
-{template_info['layout']}
-
-## 상호작용 기능
-{self._format_interactive_features(template_info['interactive_features'])}
-
-## 코드 생성 규칙
-1. 전체 파일 내용을 코드 블록으로 출력 (파일 경로와 함께)
-2. 즉시 실행 가능해야 함 (npm install && npm start)
-3. SQLite 파일은 public/data.sqlite로 참조
-4. 에러 처리와 로딩 상태 구현
-5. 반응형 디자인 적용
-6. 주석으로 주요 로직 설명
-
-## 파일 출력 형식
-파일 작성 도구를 사용할 수 없는 경우, 각 파일의 전체 내용을 다음 형식으로 출력하세요:
-
-**File:** `{output_dir}/filename.ext`
-```언어
-파일 전체 내용...
-```
-
-## 추가 요구사항
-- sql.js는 CDN이 아닌 npm 패키지로 설치하여 사용
-- 데이터베이스 연결 시 절대 경로가 아닌 상대 경로 사용
-- 브라우저에서 SQLite 파일을 fetch로 로드하여 sql.js로 실행
-- 모든 차트는 반응형으로 구현 (window resize 대응)
-
-## 중요 참고사항
-- 파일 작성 도구가 없어도 각 파일의 전체 내용을 위 형식으로 출력하세요
-- 모든 파일을 순서대로 출력하세요 (package.json부터 시작)
-- 각 파일은 즉시 실행 가능해야 합니다
-- 다음 파일들을 반드시 포함하세요:
-  1. {output_dir}/package.json
-  2. {output_dir}/public/index.html
-  3. {output_dir}/src/index.js
-  4. {output_dir}/src/index.css
-  5. {output_dir}/src/App.js
-  6. {output_dir}/src/components/* (필요한 모든 컴포넌트)
-  7. {output_dir}/src/utils/* (필요한 모든 유틸리티)
-
-지금 바로 전체 React 애플리케이션 코드를 생성해주세요."""
+Generate actual files in the output directory for a complete React application."""
         
         return prompt
     
+    # 아래 메서드들은 GEMINI.md를 사용하므로 더 이상 필요하지 않음
+    # 하지만 호환성을 위해 유지
     def _get_template_info(self, template: str) -> Dict[str, Any]:
-        """템플릿별 정보 반환"""
-        templates = {
-            'time-series': {
-                'name': '시계열 분석 대시보드',
-                'features': [
-                    'date-range-picker',
-                    'zoom functionality',
-                    'data export (CSV/JSON)',
-                    'multiple chart types (line, bar, area)',
-                    'trend analysis'
-                ],
-                'layout': '2x2 그리드 레이아웃 (메인 차트가 상단 전체 너비 차지)',
-                'interactive_features': [
-                    'Date range selection',
-                    'Chart type switching',
-                    'Data point hover tooltips',
-                    'Legend toggle'
-                ]
-            },
-            'kpi-dashboard': {
-                'name': 'KPI 대시보드',
-                'features': [
-                    'metric cards with trends',
-                    'gauge charts',
-                    'progress bars',
-                    'comparison with targets',
-                    'period-over-period analysis'
-                ],
-                'layout': '3열 그리드 (상단에 KPI 카드, 하단에 차트)',
-                'interactive_features': [
-                    'Period selection',
-                    'Metric drill-down',
-                    'Target adjustment',
-                    'Alert thresholds'
-                ]
-            },
-            'comparison': {
-                'name': '비교 분석 대시보드',
-                'features': [
-                    'side-by-side comparisons',
-                    'grouped bar charts',
-                    'radar charts',
-                    'difference highlighting',
-                    'statistical summaries'
-                ],
-                'layout': '2열 분할 뷰 (비교 대상별)',
-                'interactive_features': [
-                    'Comparison item selection',
-                    'Metric selection',
-                    'Normalization toggle',
-                    'Export comparisons'
-                ]
-            },
-            'geo-spatial': {
-                'name': 'GIS 기반 지도 대시보드',
-                'features': [
-                    'interactive map',
-                    'heatmap layer',
-                    'marker clustering',
-                    'region statistics',
-                    'location search'
-                ],
-                'layout': '전체 화면 지도 + 오버레이 패널',
-                'interactive_features': [
-                    'Map pan and zoom',
-                    'Marker clicks',
-                    'Layer toggles',
-                    'Region selection'
-                ]
-            }
-        }
-        
-        return templates.get(template, templates['time-series'])
+        """템플릿별 정보 반환 (레거시 호환성)"""
+        return {'name': template, 'features': [], 'layout': '', 'interactive_features': []}
     
     def _get_required_libraries(self, template: str) -> Dict[str, Any]:
         """템플릿별 필요 라이브러리"""
@@ -234,20 +88,20 @@ Create a complete React application with the following structure in {output_dir}
         
         # 기본 쿼리
         queries = [
-            f"// 전체 데이터 조회\nSELECT * FROM {table_name} LIMIT 1000;",
-            f"\n// 행 수 조회\nSELECT COUNT(*) as total_count FROM {table_name};"
+            f"-- 전체 데이터 조회\nSELECT * FROM {table_name} LIMIT 1000;",
+            f"\n-- 행 수 조회\nSELECT COUNT(*) as total_count FROM {table_name};"
         ]
         
         # 템플릿별 추가 쿼리
         if template == 'time-series' and data_info.get('date_columns'):
             date_col = data_info['date_columns'][0]
             queries.append(f"""
-// 기간별 데이터 조회
+-- 기간별 데이터 조회
 SELECT * FROM {table_name} 
 WHERE {date_col} >= ? AND {date_col} <= ?
 ORDER BY {date_col};
 
-// 일별 집계
+-- 일별 집계
 SELECT 
   DATE({date_col}) as date,
   COUNT(*) as count,
@@ -258,7 +112,7 @@ ORDER BY date;""")
         
         elif template == 'kpi-dashboard':
             queries.append(f"""
-// KPI 메트릭 계산
+-- KPI 메트릭 계산
 SELECT 
   COUNT(*) as total_records,
   AVG(value) as avg_value,
@@ -266,7 +120,7 @@ SELECT
   MIN(value) as min_value
 FROM {table_name};
 
-// 카테고리별 집계
+-- 카테고리별 집계
 SELECT 
   category,
   COUNT(*) as count,

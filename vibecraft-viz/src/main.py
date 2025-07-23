@@ -126,9 +126,14 @@ class VibeCraftViz:
         output_path = os.path.join(project_path, "output")
         os.makedirs(output_path, exist_ok=True)
         
+        # 프롬프트 직접 전달 (@ 제거)
+        with open(prompt_file, 'r', encoding='utf-8') as f:
+            prompt_content = f.read()
+        
         cmd = [
             "gemini",
-            "-p", f"@{prompt_file}",  # 파일에서 프롬프트 읽기
+            "--debug",  # 디버그 모드 활성화 - 더 자세한 로그 출력
+            "-p", prompt_content,  # 프롬프트 직접 전달 (@ 없이)
             "-y"  # YOLO 모드 - 모든 작업 자동 승인
         ]
         
@@ -168,44 +173,75 @@ class VibeCraftViz:
             print(f"   📝 프롬프트 샘플:\n{prompt_sample}...\n")
         
         # Gemini CLI 실행 (VibeCraft-viz 루트에서 실행)
+        import threading
+        import queue
+        
+        # 환경변수 설정 (디버깅용)
+        env = os.environ.copy()
+        env['DEBUG'] = 'gemini:*'  # Gemini CLI 디버그 로그 활성화
+        env['GEMINI_DEBUG'] = '1'
+        
         process = subprocess.Popen(
             cmd,
             cwd=vibecraft_root,  # VibeCraft-viz 루트에서 실행 (MCP 설정 읽기를 위해)
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            bufsize=1
+            bufsize=1,
+            universal_newlines=True,
+            env=env
         )
         
-        # 실시간 출력 표시
+        # 실시간 출력 표시를 위한 큐
+        output_queue = queue.Queue()
         stdout_lines = []
         stderr_lines = []
-        print(f"\n   📝 Gemini CLI 출력 시작:\n   {'-'*60}")
         
-        # stdout 처리
-        for line in process.stdout:
-            line = line.rstrip()
-            if line:
-                print(f"   [Gemini] {line}")
-                stdout_lines.append(line)
-                
-                # 특정 패턴 감지
-                if "Error executing tool" in line:
-                    print(f"   ⚠️  MCP 도구 오류 감지!")
-                elif "**File:**" in line or "FILE:" in line:
-                    print(f"   📦 파일 패턴 감지!")
+        def read_output(pipe, pipe_name, lines_list):
+            """파이프에서 라인을 읽어 큐에 추가"""
+            for line in iter(pipe.readline, ''):
+                if line:
+                    output_queue.put((pipe_name, line.rstrip()))
+                    lines_list.append(line.rstrip())
+            pipe.close()
+        
+        # stdout과 stderr를 동시에 읽기 위한 스레드
+        stdout_thread = threading.Thread(target=read_output, args=(process.stdout, "stdout", stdout_lines))
+        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, "stderr", stderr_lines))
+        
+        stdout_thread.start()
+        stderr_thread.start()
+        
+        print(f"\n   📝 Gemini CLI 출력 시작 (--debug 모드):\n   {'-'*60}")
+        
+        # 실시간으로 출력 표시
+        while stdout_thread.is_alive() or stderr_thread.is_alive() or not output_queue.empty():
+            try:
+                pipe_name, line = output_queue.get(timeout=0.1)
+                if pipe_name == "stdout":
+                    print(f"   [Gemini] {line}")
+                    
+                    # 특정 패턴 감지
+                    if "Error executing tool" in line:
+                        print(f"   ⚠️  MCP 도구 오류 감지!")
+                    elif "**File:**" in line or "FILE:" in line:
+                        print(f"   📦 파일 패턴 감지!")
+                    elif "Thinking" in line or "thinking" in line:
+                        print(f"   🤔 AI 사고 중...")
+                    elif "MCP" in line or "mcp" in line:
+                        print(f"   🔌 MCP 관련 활동 감지")
+                else:  # stderr
+                    print(f"   [Gemini Debug] {line}")
+            except queue.Empty:
+                continue
+        
+        # 스레드 종료 대기
+        stdout_thread.join()
+        stderr_thread.join()
         
         # 프로세스 종료 대기
         process.wait()
-        print(f"\n   {'-'*60}\n   📝 Gemini CLI 출력 종료")
-        
-        # stderr 읽기
-        stderr = process.stderr.read()
-        if stderr:
-            stderr_lines = stderr.strip().split('\n')
-            for line in stderr_lines:
-                if line:
-                    print(f"   [Gemini Error] {line}")
+        print(f"\n   {'-'*60}\n   📝 Gemini CLI 출력 종료 (종료 코드: {process.returncode})")
         
         if process.returncode != 0:
             error_msg = '\n'.join(stderr_lines) if stderr_lines else "Unknown error"
