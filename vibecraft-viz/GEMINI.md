@@ -41,6 +41,41 @@ output/
     └── utils/               # Data processing utilities
 ```
 
+## Required Dependencies
+
+Always include these dependencies in package.json:
+
+### Core Dependencies
+```json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.12.0",
+    "date-fns": "^3.3.1",
+    "web-vitals": "^3.5.2"
+  }
+}
+```
+
+### Development Dependencies
+```json
+{
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.33",
+    "autoprefixer": "^10.4.17"
+  }
+}
+```
+
+### Template-Specific Dependencies
+- **geo-spatial**: leaflet, react-leaflet
+- **gantt-chart**: frappe-gantt, react-frappe-gantt
+- **network-graph**: vis-network, vis-data
+- **comparison**: Additional date-fns functions may be needed
+
 ## Database Handling
 
 1. SQLite database location: `/data.sqlite` in public folder

@@ -25,6 +25,12 @@ class PromptGenerator:
         """GEMINI.md를 활용한 간결한 프롬프트 생성"""
         output_dir = output_path if output_path else "output/"
         
+        # 템플릿별 GEMINI.md 경로 명시
+        template_path = os.path.join(self.template_dir, "dashboards", template, "GEMINI.md")
+        template_hint = ""
+        if os.path.exists(template_path):
+            template_hint = f"\n\nIMPORTANT: Use the {template} template guidelines from: {template_path}"
+        
         # GEMINI.md가 있으므로 간결한 프롬프트만 생성
         prompt = f"""Create a {template} dashboard for the following request:
 
@@ -35,7 +41,7 @@ Database Information:
 - Columns: {', '.join(data_info['columns'])}
 - Row Count: {data_info['row_count']}
 
-Output Directory: {output_dir}
+Output Directory: {output_dir}{template_hint}
 
 CRITICAL REQUIREMENTS:
 1. Use the write_file tool to create all necessary files
@@ -44,6 +50,7 @@ CRITICAL REQUIREMENTS:
 3. Initialize the date picker with the ACTUAL data range, not arbitrary dates
 4. Apply date filters in SQL queries when the user changes the date range
 5. Handle date format conversions properly between SQL strings and JavaScript Date objects
+6. Include ALL necessary dependencies in package.json (date-fns, recharts, etc.)
 
 Generate actual files in the output directory for a complete React application."""
         

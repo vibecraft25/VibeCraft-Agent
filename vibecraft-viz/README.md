@@ -10,6 +10,7 @@ Gemini CLI와 SQLite MCP 서버를 활용하여 사용자의 자연어 요청을
 - 💾 **SQLite 기반**: 브라우저에서 실행 가능한 SQLite 데이터베이스
 - 🤖 **Gemini CLI 통합**: AI 기반 코드 생성
 - 🔐 **환경 변수 관리**: .env 파일로 안전한 설정 관리
+- 🧠 **GEMINI.md 계층적 메모리**: 템플릿별 특화된 지침으로 확장성 확보
 
 ## 필수 요구사항
 
@@ -112,13 +113,21 @@ vibecraft-viz/
 ├── .venv/                    # uv 가상환경
 ├── .gemini/
 │   └── settings.json        # MCP 서버 설정 (자동 생성)
+├── GEMINI.md                # 루트 시스템 프롬프트 (React 기본 설정)
 ├── src/
 │   ├── main.py              # CLI 진입점
 │   ├── data_processor.py    # 데이터 처리 모듈
 │   ├── project_manager.py   # 프로젝트 관리
 │   ├── settings_manager.py  # Gemini 설정 관리
-│   └── prompt_generator.py  # 프롬프트 생성
+│   └── prompt_generator.py  # 프롬프트 생성 (12줄로 단순화)
 ├── templates/               # 대시보드 템플릿
+│   ├── GEMINI.md           # 공통 대시보드 패턴
+│   └── dashboards/
+│       ├── time-series/
+│       │   └── GEMINI.md   # 시계열 특화 지침
+│       ├── comparison/
+│       │   └── GEMINI.md   # 비교 분석 특화 지침
+│       └── ...
 ├── projects/                # 생성된 프로젝트들 (자동 생성)
 ├── test_data/               # 테스트용 샘플 데이터
 ├── .env                     # 환경 변수 (생성 필요)
@@ -149,11 +158,37 @@ projects/[project-id]/
 
 ## 워크플로우
 
+### GEMINI.md 계층적 로딩 시스템
+
+```mermaid
+graph LR
+    A[사용자 명령어] --> B[VibeCraft-viz]
+    B --> C[데이터 처리]
+    C --> D[간결한 프롬프트<br/>12줄]
+    D --> E[Gemini CLI]
+    
+    E --> F[GEMINI.md 자동 로드]
+    F --> G[루트 GEMINI.md]
+    F --> H[templates/GEMINI.md]
+    F --> I[템플릿별 GEMINI.md]
+    
+    G --> J[통합 시스템 프롬프트]
+    H --> J
+    I --> J
+    
+    J --> K[React 앱 생성]
+```
+
+### 상세 프로세스
+
 1. **데이터 처리**: CSV/JSON 파일을 SQLite 데이터베이스로 변환
 2. **프로젝트 생성**: 고유 ID로 프로젝트 디렉토리 생성
 3. **MCP 설정 업데이트**: VibeCraft-viz 루트의 `.gemini/settings.json` 업데이트
-4. **프롬프트 생성**: 템플릿 기반 원샷 프롬프트 생성
-5. **Gemini CLI 실행**: AI가 React 코드 생성
+4. **프롬프트 생성**: 12줄의 간결한 프롬프트 + 템플릿 경로 힌트
+5. **Gemini CLI 실행**: 
+   - GEMINI.md 파일들을 자동으로 스캔하고 로드
+   - 계층적으로 병합된 ~10,000 토큰의 시스템 프롬프트 생성
+   - AI가 템플릿별 특화된 React 코드 생성
 6. **결과 전달**: 실행 가능한 React 앱 제공
 
 ## 환경 변수
@@ -228,6 +263,27 @@ uv pip install -e .
 
 ## 개발 가이드
 
+### 새로운 템플릿 추가하기
+
+1. 템플릿 디렉토리 생성:
+```bash
+mkdir -p templates/dashboards/your-template
+```
+
+2. GEMINI.md 파일 작성:
+```bash
+# 기존 템플릿 참고
+cp templates/dashboards/time-series/GEMINI.md templates/dashboards/your-template/
+# 템플릿에 맞게 수정
+```
+
+3. 테스트:
+```bash
+vibecraft-viz "테스트 요청" --data test.csv --template your-template
+```
+
+Gemini CLI가 자동으로 새 템플릿의 GEMINI.md를 로드하여 사용합니다.
+
 ### 로컬 개발 설정
 
 ```bash
@@ -252,6 +308,15 @@ pytest
 
 # 특정 테스트만
 pytest tests/test_data_processor.py
+```
+
+### GEMINI.md 디버깅
+
+Gemini CLI의 --debug 모드로 GEMINI.md 로딩 과정 확인:
+```bash
+# 로그에서 확인할 내용
+[Gemini] [DEBUG] [MemoryDiscovery] Final ordered GEMINI.md paths to read: [...]
+[Gemini] [DEBUG] [MemoryDiscovery] Combined instructions length: 9686
 ```
 
 ## 기여하기
