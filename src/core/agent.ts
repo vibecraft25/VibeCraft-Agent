@@ -7,11 +7,13 @@ import { TemplateEngine } from './template-engine';
 import { SettingsManager } from './settings-manager';
 import { PromptBuilder } from './prompt-builder';
 import { ExecutionEngine, ExecutionConfig } from './execution-engine';
+import { OutputValidator } from './output-validator';
 import { EnvironmentManager } from './environment-manager';
 import { SchemaSummarizer } from '../utils/schema-summarizer';
 import { TemplateSelector } from '../utils/template-selector';
 import { SettingsHelper } from '../utils/settings-helper';
 import { PromptValidator } from '../utils/prompt-validator';
+import { ValidationReporter } from '../utils/validation-reporter';
 import chalk from 'chalk';
 import path from 'path';
 
@@ -26,6 +28,7 @@ export class VibeCraftAgent {
   private settingsManager: SettingsManager;
   private promptBuilder: PromptBuilder;
   private executionEngine: ExecutionEngine;
+  private outputValidator: OutputValidator;
 
   constructor() {
     this.parser = new RequestParser();
@@ -36,6 +39,7 @@ export class VibeCraftAgent {
     this.settingsManager = new SettingsManager();
     this.promptBuilder = new PromptBuilder();
     this.executionEngine = new ExecutionEngine();
+    this.outputValidator = new OutputValidator();
   }
 
   async execute(args: AgentCliArgs): Promise<AgentExecutionResult> {
@@ -287,42 +291,60 @@ export class VibeCraftAgent {
           };
         }
         
-        // 9. Validate output (Task 9 - 임시로 간단한 검증만)
-        this.log('info', `Gemini CLI execution completed. Generated ${executionResult.generatedFiles.length} files`);
+        // 9. Validate output
+        this.log('info', 'Validating generated output...');
         
-        // SQLite 파일 복사 여부 확인
-        const dbFilename = path.basename(normalizedRequest.sqlitePath);
-        const publicDbPath = path.join(normalizedRequest.workingDir, 'public', dbFilename);
-        const hasDbFile = executionResult.generatedFiles.some(f => f.includes(dbFilename));
+        const validationResult = await this.outputValidator.validate(normalizedRequest.workingDir);
         
-        if (!hasDbFile) {
-          this.log('warn', 'SQLite file not found in generated files, but it was copied during setup');
+        // 검증 보고서 출력
+        if (normalizedRequest.debug || !validationResult.valid) {
+          ValidationReporter.printReport(validationResult);
         }
         
-        // 기본 파일 존재 확인
-        const requiredFiles = ['package.json', 'src/App.tsx'];
-        const missingFiles = requiredFiles.filter(f => 
-          !executionResult.generatedFiles.some(gf => gf.includes(f))
-        );
+        // 검증 로그 추가
+        for (const error of validationResult.errors) {
+          this.log('error', `Validation Error: ${error.message}`, { type: error.type });
+        }
         
-        if (missingFiles.length > 0) {
-          this.log('warn', `Missing expected files: ${missingFiles.join(', ')}`);
+        for (const warning of validationResult.warnings) {
+          this.log('warn', `Validation Warning: ${warning.message}`, { type: warning.type });
+        }
+        
+        // 검증 실패 시 반환
+        if (!validationResult.valid) {
+          return {
+            success: false,
+            outputPath: normalizedRequest.workingDir,
+            executionTime: Date.now() - this.startTime,
+            logs: this.logs,
+            error: {
+              code: 'OUTPUT_VALIDATION_ERROR',
+              message: 'Generated output failed validation',
+              validationErrors: validationResult.errors
+            },
+            generatedFiles: [settingsPath, ...executionResult.generatedFiles]
+          };
         }
         
         // 성공적으로 완료
+        this.log('info', '✅ Output validation passed!');
+        this.log('info', `Total files: ${validationResult.summary.totalFiles}`);
+        
         return {
           success: true,
           outputPath: normalizedRequest.workingDir,
           executionTime: Date.now() - this.startTime,
           logs: this.logs,
           generatedFiles: [settingsPath, ...executionResult.generatedFiles],
+          validationResult,
           // 디버그 정보 (필요시)
           debugInfo: normalizedRequest.debug ? { 
             schemaInfo, 
             promptStats: promptValidation.stats,
             settingsPath,
             promptPath: path.join(normalizedRequest.workingDir, '.gemini', 'prompt.md'),
-            executionLogs: executionResult.logs
+            executionLogs: executionResult.logs,
+            validationResult
           } : undefined
         } as AgentExecutionResult;
         

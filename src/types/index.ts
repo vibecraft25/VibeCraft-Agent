@@ -26,6 +26,8 @@ export interface AgentExecutionResult {
   logs: LogEntry[];
   error?: ErrorInfo;
   generatedFiles: string[];
+  validationResult?: any;
+  debugInfo?: any;
 }
 
 export interface LogEntry {
@@ -40,4 +42,5 @@ export interface ErrorInfo {
   message: string;
   stack?: string;
   details?: any;
+  validationErrors?: any[];
 }
