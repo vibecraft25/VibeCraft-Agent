@@ -1,0 +1,37 @@
+{
+  "name": "Time Series Visualization",
+  "description": "Interactive time-based data visualization with Recharts",
+  "version": "1.0.0",
+  "author": "VibeCraft Team",
+  "tags": ["time", "series", "chart", "timeline", "trend"],
+  "requiredTables": 1,
+  "requiredColumns": ["date", "numeric"],
+  "dependencies": [
+    "recharts",
+    "date-fns",
+    "sql.js"
+  ],
+  "variables": [
+    {
+      "name": "CHART_TITLE",
+      "type": "string",
+      "required": false,
+      "description": "Custom title for the main chart",
+      "defaultValue": "Time Series Analysis"
+    },
+    {
+      "name": "DATE_FORMAT",
+      "type": "string",
+      "required": false,
+      "description": "Date format for X-axis labels",
+      "defaultValue": "MMM dd, yyyy"
+    },
+    {
+      "name": "AGGREGATION_TYPE",
+      "type": "string",
+      "required": false,
+      "description": "Type of aggregation for time periods",
+      "defaultValue": "sum"
+    }
+  ]
+}
