@@ -18,10 +18,13 @@ export interface IExecutionEngine {
 
 export interface ExecutionConfig {
   workspaceDir: string;
-  promptPath: string;
+  prompt: string;           // 프롬프트 텍스트 직접 전달
   settingsDir: string;
+  model?: string;           // 기본값: 'gemini-2.5-pro'
   timeout?: number;
   debug?: boolean;
+  autoApprove?: boolean;    // -y 옵션 (기본값: true)
+  checkpointing?: boolean;  // -c 옵션
 }
 
 export interface ExecutionResult {
@@ -89,9 +92,9 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       await this.prepareWorkspace(config.workspaceDir);
       logs.push(this.createLog('info', 'Workspace prepared'));
       
-      // 3. 프롬프트 파일 확인
-      if (!await fs.pathExists(config.promptPath)) {
-        throw new Error(`Prompt file not found: ${config.promptPath}`);
+      // 3. 프롬프트 확인
+      if (!config.prompt || config.prompt.trim().length === 0) {
+        throw new Error('Prompt is empty');
       }
       
       // 4. Gemini CLI 실행
@@ -151,13 +154,34 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
     logs: LogEntry[]
   ): Promise<void> {
     return new Promise((resolve, reject) => {
-      const args = [
-        '-p', `@${config.promptPath}`,
-        '--working-directory', config.workspaceDir
-      ];
+      // 긴 프롬프트는 stdin으로, 짧은 추가 지시는 -p로
+      const useStdin = config.prompt.length > 1000;
       
+      const args = [];
+      
+      // 모델 지정
+      if (config.model) {
+        args.push('-m', config.model);
+      }
+      
+      // stdin을 사용하지 않는 경우에만 -p 옵션 사용
+      if (!useStdin) {
+        args.push('-p', config.prompt);
+      }
+      
+      // 자동 승인 모드 (프로덕션에서는 필수)
+      if (config.autoApprove !== false) {
+        args.push('-y');
+      }
+      
+      // 디버그 모드
       if (config.debug) {
-        args.push('--verbose');
+        args.push('-d');
+      }
+      
+      // 체크포인팅
+      if (config.checkpointing) {
+        args.push('-c');
       }
       
       const env = {
@@ -178,6 +202,12 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         status: 'running',
         currentOperation: 'Initializing'
       });
+      
+      // stdin으로 프롬프트 전달
+      if (useStdin) {
+        geminiProcess.stdin.write(config.prompt);
+        geminiProcess.stdin.end();
+      }
       
       // stdout 처리
       geminiProcess.stdout.on('data', (data) => {
@@ -481,9 +511,44 @@ interface ExecutionEvent {
 }
 ```
 
+### 8.5 Agent.ts 통합 예시
+```typescript
+// src/core/agent.ts - execute 메서드에 추가
+
+// 7단계 (Prompt Builder) 이후에 추가:
+
+// 8. Execute Gemini CLI
+this.log('info', 'Executing Gemini CLI...');
+
+const executionEngine = new ExecutionEngine();
+const executionConfig: ExecutionConfig = {
+  workspaceDir: normalizedRequest.workingDir,
+  prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
+  settingsDir: path.dirname(settingsPath),
+  model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
+  timeout: 300000,  // 5분
+  debug: normalizedRequest.debug,
+  autoApprove: true,  // 자동화를 위해 필수
+  checkpointing: false  // 필요시 활성화
+};
+
+const executionResult = await executionEngine.execute(executionConfig);
+
+if (!executionResult.success) {
+  return {
+    ...executionResult,
+    // 이전 단계에서 생성된 파일들 포함
+    generatedFiles: [settingsPath, ...executionResult.generatedFiles]
+  };
+}
+
+// 9. Validate output (Task 9로 이어짐)
+this.log('info', `Gemini CLI execution completed. Generated ${executionResult.generatedFiles.length} files`);
+```
+
 ## 완료 기준
 - [ ] Execution Engine 인터페이스 구현
-- [ ] Gemini CLI 실행 로직
+- [ ] Gemini CLI 실행 로직 (stdin/args 처리)
 - [ ] 프로세스 관리 및 모니터링
 - [ ] 로그 수집 및 관리
 - [ ] 타임아웃 처리

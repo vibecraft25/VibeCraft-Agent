@@ -176,6 +176,34 @@ type VisualizationType =
   - 테스트 작성 완료 (12개 테스트 통과)
   - Agent 클래스와 통합 완료
   - 예제 템플릿 작성 (time-series, kpi-dashboard)
+
+- **Task 6**: Settings Manager 모듈 구현 ✓
+  - SettingsManager 클래스 구현 (settings.json 생성)
+  - MCP SQLite 서버 설정 자동 생성
+  - 실행 방식 자동 결정 (Python 모듈 vs UV)
+  - SettingsHelper 유틸리티 클래스
+  - EnvironmentManager 클래스 (환경 변수 관리)
+  - 테스트 작성 완료 (24개 테스트 통과)
+  - Agent 클래스와 통합 완료
+
+- **Task 7**: Prompt Builder 모듈 구현 ✓
+  - PromptBuilder 클래스 구현 (buildPrompt, optimizePrompt)
+  - 시스템 프롬프트 템플릿 정의
+  - 스키마 정보 포맷팅
+  - 템플릿 콘텐츠 및 사용자 요구사항 통합
+  - 프롬프트 최적화 기능 (토큰 제한, 포커스 영역)
+  - PromptValidator 유틸리티 클래스
+  - 테스트 작성 완료 (18개 테스트 통과)
+  - Agent 클래스와 통합 완료 (프롬프트 생성/검증/저장)
+
+- **Task 8**: Execution Engine 모듈 구현 ✓
+  - ExecutionEngine 클래스 구현 (execute, monitorExecution, cancelExecution)
+  - Gemini CLI 실행 로직 (-p 옵션 vs stdin 자동 선택)
+  - 프로세스 관리 및 모니터링 (EventEmitter 기반)
+  - ProcessManager 유틸리티 클래스 (Singleton 패턴)
+  - ExecutionMonitor 클래스 (메트릭 수집)
+  - 테스트 작성 완료 (14개 테스트 통과)
+  - Agent 클래스와 통합 완료 (Gemini CLI 실행 및 기본 검증)
   
 ### 진행 중인 작업
 없음

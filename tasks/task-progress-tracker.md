@@ -79,32 +79,61 @@
   - Agent 클래스와 통합
   - 예제 템플릿 작성 (time-series, kpi-dashboard)
 
+#### 6. Settings Manager 모듈 구현
+- **상태**: 완료
+- **문서**: [06-settings-manager.md](./06-settings-manager.md)
+- **완료일**: 2025-08-03
+- **구현 내용**:
+  - SettingsManager 클래스 구현 (settings.json 생성/관리)
+  - MCP SQLite 서버 설정 자동 생성
+  - 실행 방식 자동 결정 (Python 모듈 vs UV)
+  - SQLite 파일 경로를 절대 경로로 변환
+  - SettingsHelper 유틸리티 클래스 구현
+  - EnvironmentManager 클래스 구현 (환경 변수 관리)
+  - 설정 파일 검증 및 업데이트 기능
+  - 포괄적인 유닛 테스트 작성 (24개 테스트 모두 통과)
+  - Agent 클래스와 통합 (SQLite 파일 복사 포함)
+
+#### 7. Prompt Builder 모듈 구현
+- **상태**: 완료
+- **문서**: [07-prompt-builder.md](./07-prompt-builder.md)
+- **완료일**: 2025-08-03
+- **구현 내용**:
+  - PromptBuilder 클래스 구현 (buildPrompt, optimizePrompt 메서드)
+  - 시스템 프롬프트 템플릿 정의 (VibeCraft-viz 역할 및 기술 스택)
+  - 스키마 정보 포맷팅 (테이블, 컬럼, 관계, 샘플 데이터)
+  - 템플릿 콘텐츠 및 사용자 요구사항 통합
+  - 프로젝트 컨텍스트 지원 (추가 요구사항, 제약사항)
+  - 프롬프트 최적화 기능 (토큰 제한, 포커스 영역, 패턴 제거)
+  - PromptValidator 유틸리티 클래스 구현
+  - 포괄적인 유닛 테스트 작성 (18개 테스트 모두 통과)
+  - Agent 클래스와 통합 (프롬프트 생성 및 검증)
+  - 디버그 모드에서 프롬프트 파일 저장 기능
+
+#### 8. Execution Engine 모듈 구현
+- **상태**: 완료
+- **문서**: [08-execution-engine.md](./08-execution-engine.md)
+- **완료일**: 2025-08-03
+- **구현 내용**:
+  - ExecutionEngine 클래스 구현 (execute, monitorExecution, cancelExecution)
+  - Gemini CLI 실행 로직 구현 (프롬프트 텍스트 직접 전달)
+  - stdin/args 자동 선택 (1000자 기준)
+  - 프로세스 관리 및 모니터링 (EventEmitter 기반)
+  - 환경 변수 설정 (GEMINI_SETTINGS_DIR)
+  - 로그 수집 및 관리 (stdout/stderr 처리)
+  - 타임아웃 처리 기능
+  - 에러 처리 및 복구
+  - 생성된 파일 목록 수집
+  - ProcessManager 유틸리티 클래스 구현 (Singleton 패턴)
+  - ExecutionMonitor 클래스 구현 (메트릭 수집)
+  - 포괄적인 유닛 테스트 작성 (14개 테스트 모두 통과)
+  - Agent 클래스와 통합 (Gemini CLI 실행 및 기본 검증)
+
 ### 🚧 진행 중인 태스크
 
 없음
 
 ### 📋 대기 중인 태스크
-
-#### 6. Settings Manager 모듈 구현
-- **상태**: 대기
-- **내용**:
-  - Gemini CLI settings.json 생성
-  - MCP SQLite 서버 설정
-  - 환경 변수 관리
-
-#### 7. Prompt Builder 모듈 구현
-- **상태**: 대기
-- **내용**:
-  - 시스템, 타입별, 사용자 프롬프트 조합
-  - 프롬프트 최적화
-  - 컨텍스트 정보 주입
-
-#### 8. Execution Engine 모듈 구현
-- **상태**: 대기
-- **내용**:
-  - Gemini CLI 프로세스 실행
-  - 실행 상태 모니터링
-  - 결과 수집 및 처리
 
 #### 9. Output Validator 모듈 구현
 - **상태**: 대기
@@ -181,6 +210,29 @@
   - 예제 템플릿 2개 작성 완료
   - 테스트 모두 통과 (12개)
 
+- **Task 6 완료**: Settings Manager 모듈 구현
+  - Gemini CLI settings.json 생성 및 관리
+  - MCP 서버 실행 방식 자동 결정
+  - 환경 변수 관리 시스템 구축
+  - SQLite 파일 복사 기능 추가
+  - 테스트 모두 통과 (24개)
+
+- **Task 7 완료**: Prompt Builder 모듈 구현
+  - 시스템 프롬프트 템플릿 정의 (VibeCraft-viz 역할)
+  - 프롬프트 컴포넌트 조합 시스템 구축
+  - 스키마 정보 포맷팅 기능 구현
+  - 프롬프트 최적화 기능 (토큰 제한 처리)
+  - PromptValidator 유틸리티 클래스 작성
+  - Agent 클래스와 완전히 통합
+  - 테스트 모두 통과 (18개)
+
+- **Task 8 완료**: Execution Engine 모듈 구현
+  - Gemini CLI 실행 관리 시스템 구축
+  - 프롬프트 전달 방식 구현 (-p 옵션 vs stdin)
+  - 프로세스 모니터링 및 이벤트 시스템
+  - 14개 테스트 케이스 모두 통과
+  - Agent 클래스와 완전히 통합
+
 ### 2025-08-02
 - 프로젝트 구조 및 아키텍처 문서 분석 완료
 - 전체 태스크 목록 작성 및 구현 계획 수립
@@ -208,9 +260,9 @@ CLI Interface
 ```
 
 ### 다음 단계
-1. Settings Manager 모듈 구현 (Task 6)
-2. MCP SQLite 서버 설정 생성
-3. Gemini CLI settings.json 파일 생성
+1. Output Validator 모듈 구현 (Task 9)
+2. 생성된 React 앱 검증 로직
+3. 필수 파일 및 구조 확인
 
 ## 리스크 및 고려사항
 - Gemini CLI와의 통합 테스트 필요
