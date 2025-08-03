@@ -1,0 +1,100 @@
+{
+  "type": "geo-spatial",
+  "name": "Geo-Spatial Visualization",
+  "description": "지리적 데이터 매핑 및 위치 기반 분석",
+  "requiredLibraries": ["react-leaflet", "leaflet", "d3-geo"],
+  "systemPrompt": "Create a geo-spatial visualization with interactive maps, heatmaps, and location-based analytics.",
+  "componentStructure": {
+    "mainComponents": [
+      {
+        "name": "InteractiveMap",
+        "description": "React Leaflet based map component",
+        "props": [
+          { "name": "center", "type": "[number, number]" },
+          { "name": "zoom", "type": "number" },
+          { "name": "markers", "type": "MapMarker[]" },
+          { "name": "onMarkerClick", "type": "(marker: MapMarker) => void" }
+        ],
+        "features": ["clustering", "heatmap", "layers", "export"]
+      },
+      {
+        "name": "LocationSearch",
+        "description": "Search and filter locations",
+        "props": [
+          { "name": "onSearch", "type": "(query: string) => void" },
+          { "name": "suggestions", "type": "Location[]" },
+          { "name": "onSelect", "type": "(location: Location) => void" }
+        ],
+        "features": ["autocomplete", "filtering", "categories"]
+      },
+      {
+        "name": "MapControls",
+        "description": "Map interaction controls",
+        "props": [
+          { "name": "layers", "type": "Layer[]" },
+          { "name": "onLayerToggle", "type": "(layerId: string) => void" },
+          { "name": "onExport", "type": "() => void" }
+        ],
+        "features": ["zoom", "layers", "fullscreen", "export"]
+      }
+    ],
+    "supportingComponents": [
+      {
+        "name": "LocationDetails",
+        "description": "Popup/sidebar for location information",
+        "props": [
+          { "name": "location", "type": "Location" },
+          { "name": "metrics", "type": "LocationMetrics" }
+        ],
+        "features": ["charts", "comparison", "details"]
+      },
+      {
+        "name": "HeatmapLayer",
+        "description": "Density visualization layer",
+        "props": [
+          { "name": "data", "type": "HeatmapData[]" },
+          { "name": "radius", "type": "number" },
+          { "name": "intensity", "type": "number" }
+        ],
+        "features": ["gradient", "intensity", "animation"]
+      }
+    ],
+    "hooks": [
+      {
+        "name": "useMapData",
+        "description": "Hook for fetching and processing geo data"
+      },
+      {
+        "name": "useGeoBounds",
+        "description": "Hook for calculating map bounds from data"
+      }
+    ],
+    "utils": [
+      {
+        "name": "geoUtils",
+        "description": "Geographic calculation utilities"
+      },
+      {
+        "name": "markerUtils",
+        "description": "Marker clustering and customization"
+      }
+    ]
+  },
+  "dataProcessingPatterns": [
+    {
+      "name": "Location Query",
+      "sqlTemplate": "SELECT {{lat}}, {{lng}}, {{name}}, {{metrics}} FROM {{table}} WHERE {{lat}} IS NOT NULL AND {{lng}} IS NOT NULL",
+      "dataTransformation": "results.map(row => ({ position: [row.lat, row.lng], ...row }))"
+    },
+    {
+      "name": "Region Aggregation",
+      "sqlTemplate": "SELECT {{region}}, COUNT(*) as count, SUM({{metric}}) as total FROM {{table}} GROUP BY {{region}}",
+      "dataTransformation": "results.map(row => ({ region: row.region, count: row.count, total: row.total }))"
+    },
+    {
+      "name": "Distance Query",
+      "sqlTemplate": "SELECT *, (({{lat}} - ?) * ({{lat}} - ?) + ({{lng}} - ?) * ({{lng}} - ?)) as dist_sq FROM {{table}} ORDER BY dist_sq LIMIT ?",
+      "dataTransformation": "results.map(row => ({ ...row, distance: Math.sqrt(row.dist_sq) }))"
+    }
+  ]
+}

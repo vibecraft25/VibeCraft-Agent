@@ -11,6 +11,12 @@
     "dev": "nodemon --watch src --exec ts-node src/cli.ts",
     "start": "node dist/cli.js",
     "test": "jest",
+    "test:unit": "jest --config jest.config.js",
+    "test:integration": "jest --config jest.integration.config.js",
+    "test:performance": "jest --config jest.performance.config.js",
+    "test:e2e": "npm run build && jest --config jest.integration.config.js tests/e2e",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:performance",
+    "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts"
   },
@@ -28,6 +34,7 @@
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
     "fs-extra": "^11.2.0",
+    "ora": "^8.2.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.6"
   },

@@ -1,0 +1,100 @@
+{
+  "type": "comparison",
+  "name": "Comparison Analysis",
+  "description": "데이터 비교 분석 및 시각화",
+  "requiredLibraries": ["recharts", "@nivo/bar", "react-table"],
+  "systemPrompt": "Create a comparison visualization for analyzing differences between categories, time periods, or groups with various chart types.",
+  "componentStructure": {
+    "mainComponents": [
+      {
+        "name": "ComparisonChart",
+        "description": "Multi-type comparison visualization",
+        "props": [
+          { "name": "data", "type": "ComparisonData[]" },
+          { "name": "chartType", "type": "ChartType" },
+          { "name": "categories", "type": "string[]" },
+          { "name": "metrics", "type": "Metric[]" }
+        ],
+        "features": ["multiple-chart-types", "interactive-legend", "tooltips", "export"]
+      },
+      {
+        "name": "ComparisonTable",
+        "description": "Tabular comparison view",
+        "props": [
+          { "name": "data", "type": "ComparisonData[]" },
+          { "name": "columns", "type": "Column[]" },
+          { "name": "onSort", "type": "(column: string) => void" }
+        ],
+        "features": ["sorting", "filtering", "highlighting", "export-csv"]
+      },
+      {
+        "name": "ChartTypeSelector",
+        "description": "Chart type selection control",
+        "props": [
+          { "name": "selected", "type": "ChartType" },
+          { "name": "onChange", "type": "(type: ChartType) => void" },
+          { "name": "availableTypes", "type": "ChartType[]" }
+        ],
+        "features": ["preview", "recommendations"]
+      }
+    ],
+    "supportingComponents": [
+      {
+        "name": "DifferenceIndicator",
+        "description": "Visual difference indicators",
+        "props": [
+          { "name": "value1", "type": "number" },
+          { "name": "value2", "type": "number" },
+          { "name": "format", "type": "FormatType" }
+        ],
+        "features": ["percentage", "absolute", "trend-arrows"]
+      },
+      {
+        "name": "ComparisonSummary",
+        "description": "Summary statistics panel",
+        "props": [
+          { "name": "data", "type": "ComparisonData[]" },
+          { "name": "metrics", "type": "Metric[]" }
+        ],
+        "features": ["statistics", "insights", "rankings"]
+      }
+    ],
+    "hooks": [
+      {
+        "name": "useComparisonData",
+        "description": "Hook for fetching and processing comparison data"
+      },
+      {
+        "name": "useChartRecommendation",
+        "description": "Hook for recommending best chart type"
+      }
+    ],
+    "utils": [
+      {
+        "name": "comparisonUtils",
+        "description": "Comparison calculation utilities"
+      },
+      {
+        "name": "chartTypeUtils",
+        "description": "Chart type selection helpers"
+      }
+    ]
+  },
+  "dataProcessingPatterns": [
+    {
+      "name": "Category Comparison",
+      "sqlTemplate": "SELECT {{category}}, {{metrics}} FROM {{table}} GROUP BY {{category}}",
+      "dataTransformation": "results.map(row => ({ category: row[0], ...mapMetrics(row.slice(1)) }))"
+    },
+    {
+      "name": "Time Period Comparison",
+      "sqlTemplate": "SELECT {{period}}, {{category}}, {{metrics}} FROM {{table}} WHERE {{period}} IN (?, ?) GROUP BY {{period}}, {{category}}",
+      "dataTransformation": "pivotByPeriod(results)"
+    },
+    {
+      "name": "Top N Comparison",
+      "sqlTemplate": "SELECT {{category}}, {{metric}} FROM {{table}} ORDER BY {{metric}} DESC LIMIT ?",
+      "dataTransformation": "results.map((row, idx) => ({ rank: idx + 1, ...row }))"
+    }
+  ]
+}
