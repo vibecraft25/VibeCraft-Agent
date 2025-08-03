@@ -1,0 +1,37 @@
+{
+  "name": "KPI Dashboard",
+  "description": "Key Performance Indicators dashboard with metrics and charts",
+  "version": "1.0.0",
+  "author": "VibeCraft Team",
+  "tags": ["kpi", "dashboard", "metrics", "analytics", "business"],
+  "requiredTables": 1,
+  "requiredColumns": ["numeric"],
+  "dependencies": [
+    "recharts",
+    "sql.js",
+    "lucide-react"
+  ],
+  "variables": [
+    {
+      "name": "DASHBOARD_TITLE",
+      "type": "string",
+      "required": false,
+      "description": "Main dashboard title",
+      "defaultValue": "KPI Dashboard"
+    },
+    {
+      "name": "REFRESH_INTERVAL",
+      "type": "number",
+      "required": false,
+      "description": "Auto-refresh interval in seconds (0 for no refresh)",
+      "defaultValue": 0
+    },
+    {
+      "name": "COLOR_SCHEME",
+      "type": "string",
+      "required": false,
+      "description": "Color scheme for charts",
+      "defaultValue": "blue"
+    }
+  ]
+}
