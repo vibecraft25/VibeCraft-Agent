@@ -4,9 +4,16 @@ import { RequestNormalizer } from './request-normalizer';
 import { AdvancedValidator } from './parser-advanced';
 import { SchemaAnalyzer } from './schema-analyzer';
 import { TemplateEngine } from './template-engine';
+import { SettingsManager } from './settings-manager';
+import { PromptBuilder } from './prompt-builder';
+import { ExecutionEngine, ExecutionConfig } from './execution-engine';
+import { EnvironmentManager } from './environment-manager';
 import { SchemaSummarizer } from '../utils/schema-summarizer';
 import { TemplateSelector } from '../utils/template-selector';
+import { SettingsHelper } from '../utils/settings-helper';
+import { PromptValidator } from '../utils/prompt-validator';
 import chalk from 'chalk';
+import path from 'path';
 
 export class VibeCraftAgent {
   private logs: LogEntry[] = [];
@@ -16,6 +23,9 @@ export class VibeCraftAgent {
   private validator: AdvancedValidator;
   private schemaAnalyzer: SchemaAnalyzer;
   private templateEngine: TemplateEngine;
+  private settingsManager: SettingsManager;
+  private promptBuilder: PromptBuilder;
+  private executionEngine: ExecutionEngine;
 
   constructor() {
     this.parser = new RequestParser();
@@ -23,6 +33,9 @@ export class VibeCraftAgent {
     this.validator = new AdvancedValidator();
     this.schemaAnalyzer = new SchemaAnalyzer();
     this.templateEngine = new TemplateEngine();
+    this.settingsManager = new SettingsManager();
+    this.promptBuilder = new PromptBuilder();
+    this.executionEngine = new ExecutionEngine();
   }
 
   async execute(args: AgentCliArgs): Promise<AgentExecutionResult> {
@@ -117,7 +130,7 @@ export class VibeCraftAgent {
         const renderedPrompt = this.templateEngine.renderTemplate(template, {
           schemaInfo,
           userPrompt: normalizedRequest.userPrompt,
-          projectName: normalizedRequest.projectName,
+          projectName: normalizedRequest.projectName || 'vibecraft-app',
           visualizationType: normalizedRequest.visualizationType,
           timestamp: new Date()
         });
@@ -129,29 +142,187 @@ export class VibeCraftAgent {
             renderedPrompt.substring(0, 500) + '...');
         }
         
-        // TODO: Continue with remaining steps
-        // 6. Create settings (Task 6)
-        // 7. Build final prompt (Task 7)
-        // 8. Execute Gemini CLI (Task 8)
-        // 9. Validate output (Task 9)
+        // 6. Create settings for Gemini CLI
+        this.log('info', 'Creating Gemini CLI settings...');
         
-        // Temporary placeholder for now
-        this.log('error', 'Full implementation pending - Template Engine completed');
+        // Copy SQLite file to working directory
+        const sqliteFileName = path.basename(normalizedRequest.sqlitePath);
+        const targetSqlitePath = path.join(normalizedRequest.workingDir, 'public', sqliteFileName);
+        await this.copyDatabaseFile(normalizedRequest.sqlitePath, targetSqlitePath);
+        this.log('info', `SQLite file copied to: ${targetSqlitePath}`);
         
+        // Generate settings.json
+        const settingsPath = await this.settingsManager.generateSettings({
+          workspaceDir: normalizedRequest.workingDir,
+          sqlitePath: targetSqlitePath,
+          mcpServerPath: EnvironmentManager.getMCPServerPath(),
+          timeout: EnvironmentManager.getTimeout(),
+          trust: true
+        });
+        this.log('info', `Settings file created at: ${settingsPath}`);
+        
+        // Validate settings
+        const isValidSettings = await this.settingsManager.validateSettings(settingsPath);
+        if (!isValidSettings) {
+          this.log('error', 'Settings validation failed');
+          return {
+            success: false,
+            outputPath: normalizedRequest.workingDir,
+            executionTime: Date.now() - this.startTime,
+            logs: this.logs,
+            error: {
+              code: 'SETTINGS_ERROR',
+              message: 'Failed to create valid settings for Gemini CLI'
+            },
+            generatedFiles: []
+          };
+        }
+        
+        // 7. Build final prompt
+        this.log('info', 'Building final prompt...');
+        
+        // Build prompt components
+        const promptComponents = {
+          systemPrompt: this.promptBuilder.getSystemPrompt(),
+          templateContent: renderedPrompt,
+          userPrompt: normalizedRequest.userPrompt,
+          schemaInfo,
+          projectContext: {
+            projectName: normalizedRequest.projectName || 'vibecraft-app',
+            outputDir: normalizedRequest.workingDir
+          }
+        };
+        
+        // Validate components
+        const componentValidation = PromptValidator.validateComponents(promptComponents);
+        if (!componentValidation.valid) {
+          this.log('error', 'Prompt component validation failed', componentValidation.errors);
+          return {
+            success: false,
+            outputPath: normalizedRequest.workingDir,
+            executionTime: Date.now() - this.startTime,
+            logs: this.logs,
+            error: {
+              code: 'PROMPT_VALIDATION_ERROR',
+              message: componentValidation.errors.join('; ')
+            },
+            generatedFiles: [settingsPath]
+          };
+        }
+        
+        // Build the prompt
+        const finalPrompt = this.promptBuilder.buildPrompt(promptComponents);
+        this.log('info', 'Final prompt built successfully');
+        
+        // Validate final prompt
+        const promptValidation = PromptValidator.validatePrompt(finalPrompt);
+        if (!promptValidation.valid) {
+          this.log('error', 'Final prompt validation failed', promptValidation.errors);
+          return {
+            success: false,
+            outputPath: normalizedRequest.workingDir,
+            executionTime: Date.now() - this.startTime,
+            logs: this.logs,
+            error: {
+              code: 'PROMPT_VALIDATION_ERROR',
+              message: promptValidation.errors.join('; ')
+            },
+            generatedFiles: [settingsPath]
+          };
+        }
+        
+        // Log warnings if any
+        if (promptValidation.warnings.length > 0) {
+          promptValidation.warnings.forEach(warning => {
+            this.log('warn', warning);
+          });
+        }
+        
+        // Log prompt stats
+        if (promptValidation.stats) {
+          this.log('info', 'Prompt statistics:', {
+            characters: promptValidation.stats.characterCount,
+            words: promptValidation.stats.wordCount,
+            estimatedTokens: promptValidation.stats.estimatedTokens
+          });
+        }
+        
+        // Check if optimization is needed
+        if (!PromptValidator.isOptimized(finalPrompt)) {
+          this.log('warn', 'Prompt may benefit from optimization');
+          const suggestions = PromptValidator.getOptimizationSuggestions(finalPrompt);
+          suggestions.forEach(suggestion => {
+            this.log('info', `Optimization suggestion: ${suggestion}`);
+          });
+        }
+        
+        // Save prompt to file for debugging
+        if (normalizedRequest.debug) {
+          const promptPath = path.join(normalizedRequest.workingDir, '.gemini', 'prompt.md');
+          await this.savePromptToFile(finalPrompt, promptPath);
+          this.log('debug', `Prompt saved to: ${promptPath}`);
+        }
+        
+        // 8. Execute Gemini CLI
+        this.log('info', 'Executing Gemini CLI...');
+        
+        const executionConfig: ExecutionConfig = {
+          workspaceDir: normalizedRequest.workingDir,
+          prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
+          settingsDir: path.dirname(settingsPath),
+          model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
+          timeout: 300000,  // 5분
+          debug: normalizedRequest.debug,
+          autoApprove: true,  // 자동화를 위해 필수
+          checkpointing: false  // 필요시 활성화
+        };
+        
+        const executionResult = await this.executionEngine.execute(executionConfig);
+        
+        if (!executionResult.success) {
+          return {
+            ...executionResult,
+            // 이전 단계에서 생성된 파일들 포함
+            generatedFiles: [settingsPath, ...executionResult.generatedFiles]
+          };
+        }
+        
+        // 9. Validate output (Task 9 - 임시로 간단한 검증만)
+        this.log('info', `Gemini CLI execution completed. Generated ${executionResult.generatedFiles.length} files`);
+        
+        // SQLite 파일 복사 여부 확인
+        const dbFilename = path.basename(normalizedRequest.sqlitePath);
+        const publicDbPath = path.join(normalizedRequest.workingDir, 'public', dbFilename);
+        const hasDbFile = executionResult.generatedFiles.some(f => f.includes(dbFilename));
+        
+        if (!hasDbFile) {
+          this.log('warn', 'SQLite file not found in generated files, but it was copied during setup');
+        }
+        
+        // 기본 파일 존재 확인
+        const requiredFiles = ['package.json', 'src/App.tsx'];
+        const missingFiles = requiredFiles.filter(f => 
+          !executionResult.generatedFiles.some(gf => gf.includes(f))
+        );
+        
+        if (missingFiles.length > 0) {
+          this.log('warn', `Missing expected files: ${missingFiles.join(', ')}`);
+        }
+        
+        // 성공적으로 완료
         return {
-          success: false,
+          success: true,
           outputPath: normalizedRequest.workingDir,
           executionTime: Date.now() - this.startTime,
           logs: this.logs,
-          error: {
-            code: 'PARTIAL_IMPLEMENTATION',
-            message: 'Template Engine implemented, remaining modules pending'
-          },
-          generatedFiles: [],
-          // 임시로 스키마 정보와 렌더링된 프롬프트 반환 (디버그용)
+          generatedFiles: [settingsPath, ...executionResult.generatedFiles],
+          // 디버그 정보 (필요시)
           debugInfo: normalizedRequest.debug ? { 
             schemaInfo, 
-            renderedPrompt: renderedPrompt.substring(0, 1000) 
+            promptStats: promptValidation.stats,
+            settingsPath,
+            promptPath: path.join(normalizedRequest.workingDir, '.gemini', 'prompt.md'),
+            executionLogs: executionResult.logs
           } : undefined
         } as AgentExecutionResult;
         
@@ -208,5 +379,31 @@ export class VibeCraftAgent {
     if (level === 'debug') {
       console.debug(`[DEBUG] ${message}`, context || '');
     }
+  }
+  
+  /**
+   * Copy SQLite database file to target directory
+   */
+  private async copyDatabaseFile(sourcePath: string, targetPath: string): Promise<void> {
+    const fs = await import('fs-extra');
+    
+    // Ensure target directory exists
+    await fs.ensureDir(path.dirname(targetPath));
+    
+    // Copy the file
+    await fs.copy(sourcePath, targetPath);
+  }
+  
+  /**
+   * Save prompt to file for debugging
+   */
+  private async savePromptToFile(prompt: string, filePath: string): Promise<void> {
+    const fs = await import('fs-extra');
+    
+    // Ensure directory exists
+    await fs.ensureDir(path.dirname(filePath));
+    
+    // Save prompt
+    await fs.writeFile(filePath, prompt, 'utf8');
   }
 }
