@@ -1,0 +1,101 @@
+{
+  "type": "heatmap",
+  "name": "Heatmap Visualization",
+  "description": "2차원 히트맵 시각화 및 패턴 분석",
+  "requiredLibraries": ["@nivo/heatmap", "d3-scale", "react-calendar-heatmap"],
+  "systemPrompt": "Create a heatmap visualization for displaying patterns, correlations, and intensity distributions across two dimensions.",
+  "componentStructure": {
+    "mainComponents": [
+      {
+        "name": "HeatmapGrid",
+        "description": "Main heatmap visualization grid",
+        "props": [
+          { "name": "data", "type": "HeatmapData[][]" },
+          { "name": "xLabels", "type": "string[]" },
+          { "name": "yLabels", "type": "string[]" },
+          { "name": "colorScale", "type": "ColorScale" },
+          { "name": "onCellClick", "type": "(x: number, y: number, value: number) => void" }
+        ],
+        "features": ["interactive-cells", "zoom", "tooltips", "custom-colors"]
+      },
+      {
+        "name": "CalendarHeatmap",
+        "description": "Calendar-style heatmap for time-based data",
+        "props": [
+          { "name": "data", "type": "CalendarData[]" },
+          { "name": "startDate", "type": "Date" },
+          { "name": "endDate", "type": "Date" },
+          { "name": "colorScale", "type": "ColorScale" }
+        ],
+        "features": ["year-view", "month-view", "day-details"]
+      },
+      {
+        "name": "CorrelationMatrix",
+        "description": "Correlation matrix heatmap",
+        "props": [
+          { "name": "variables", "type": "string[]" },
+          { "name": "correlations", "type": "number[][]" },
+          { "name": "showValues", "type": "boolean" }
+        ],
+        "features": ["symmetric", "diagonal-highlight", "clustering"]
+      }
+    ],
+    "supportingComponents": [
+      {
+        "name": "ColorLegend",
+        "description": "Color scale legend",
+        "props": [
+          { "name": "scale", "type": "ColorScale" },
+          { "name": "orientation", "type": "'horizontal' | 'vertical'" }
+        ],
+        "features": ["gradient", "discrete", "labels"]
+      },
+      {
+        "name": "HeatmapControls",
+        "description": "Controls for heatmap customization",
+        "props": [
+          { "name": "onScaleChange", "type": "(scale: ColorScale) => void" },
+          { "name": "onNormalizationChange", "type": "(type: NormalizationType) => void" }
+        ],
+        "features": ["color-picker", "scale-selector", "normalization"]
+      }
+    ],
+    "hooks": [
+      {
+        "name": "useHeatmapData",
+        "description": "Hook for fetching and processing heatmap data"
+      },
+      {
+        "name": "useColorScale",
+        "description": "Hook for managing color scales"
+      }
+    ],
+    "utils": [
+      {
+        "name": "heatmapUtils",
+        "description": "Heatmap data processing utilities"
+      },
+      {
+        "name": "colorUtils",
+        "description": "Color scale and interpolation utilities"
+      }
+    ]
+  },
+  "dataProcessingPatterns": [
+    {
+      "name": "2D Aggregation Query",
+      "sqlTemplate": "SELECT {{xColumn}}, {{yColumn}}, {{aggregation}}({{valueColumn}}) as value FROM {{table}} GROUP BY {{xColumn}}, {{yColumn}}",
+      "dataTransformation": "pivotToMatrix(results)"
+    },
+    {
+      "name": "Time-based Heatmap Query",
+      "sqlTemplate": "SELECT date({{dateColumn}}) as date, {{hourColumn}} as hour, COUNT(*) as count FROM {{table}} GROUP BY date, hour",
+      "dataTransformation": "buildTimeHeatmap(results)"
+    },
+    {
+      "name": "Correlation Query",
+      "sqlTemplate": "SELECT {{columns}} FROM {{table}}",
+      "dataTransformation": "calculateCorrelationMatrix(results)"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "type": "gantt-chart",
+  "name": "Gantt Chart",
+  "description": "프로젝트 일정 및 작업 진행 상황 시각화",
+  "requiredLibraries": ["@nivo/calendar", "date-fns", "react-gantt-chart"],
+  "systemPrompt": "Create a Gantt chart for project management with task dependencies, resource allocation, and progress tracking.",
+  "componentStructure": {
+    "mainComponents": [
+      {
+        "name": "GanttChart",
+        "description": "Interactive Gantt chart with task bars",
+        "props": [
+          { "name": "tasks", "type": "Task[]" },
+          { "name": "startDate", "type": "Date" },
+          { "name": "endDate", "type": "Date" },
+          { "name": "onTaskClick", "type": "(task: Task) => void" },
+          { "name": "onTaskUpdate", "type": "(task: Task) => void" }
+        ],
+        "features": ["drag-drop", "dependencies", "zoom", "export", "milestones"]
+      },
+      {
+        "name": "TaskList",
+        "description": "Hierarchical task list view",
+        "props": [
+          { "name": "tasks", "type": "Task[]" },
+          { "name": "onTaskSelect", "type": "(task: Task) => void" },
+          { "name": "onTaskEdit", "type": "(task: Task) => void" }
+        ],
+        "features": ["hierarchy", "expand-collapse", "inline-edit", "sorting"]
+      },
+      {
+        "name": "Timeline",
+        "description": "Time scale header",
+        "props": [
+          { "name": "startDate", "type": "Date" },
+          { "name": "endDate", "type": "Date" },
+          { "name": "scale", "type": "TimeScale" },
+          { "name": "onScaleChange", "type": "(scale: TimeScale) => void" }
+        ],
+        "features": ["zoom-levels", "today-marker", "weekends", "holidays"]
+      }
+    ],
+    "supportingComponents": [
+      {
+        "name": "ResourceView",
+        "description": "Resource allocation visualization",
+        "props": [
+          { "name": "resources", "type": "Resource[]" },
+          { "name": "tasks", "type": "Task[]" }
+        ],
+        "features": ["utilization", "conflicts", "load-balancing"]
+      },
+      {
+        "name": "TaskDetails",
+        "description": "Task information panel",
+        "props": [
+          { "name": "task", "type": "Task" },
+          { "name": "onUpdate", "type": "(task: Task) => void" }
+        ],
+        "features": ["edit-form", "dependencies", "attachments", "comments"]
+      },
+      {
+        "name": "CriticalPath",
+        "description": "Critical path highlighting",
+        "props": [
+          { "name": "tasks", "type": "Task[]" },
+          { "name": "highlighted", "type": "boolean" }
+        ],
+        "features": ["calculation", "highlighting", "analysis"]
+      }
+    ],
+    "hooks": [
+      {
+        "name": "useGanttData",
+        "description": "Hook for fetching and processing Gantt data"
+      },
+      {
+        "name": "useTaskDependencies",
+        "description": "Hook for managing task dependencies"
+      },
+      {
+        "name": "useCriticalPath",
+        "description": "Hook for calculating critical path"
+      }
+    ],
+    "utils": [
+      {
+        "name": "taskUtils",
+        "description": "Task hierarchy and dependency utilities"
+      },
+      {
+        "name": "dateUtils",
+        "description": "Date calculation and formatting"
+      },
+      {
+        "name": "ganttExport",
+        "description": "Export utilities for PDF/PNG"
+      }
+    ]
+  },
+  "dataProcessingPatterns": [
+    {
+      "name": "Task Hierarchy Query",
+      "sqlTemplate": "SELECT * FROM {{table}} ORDER BY {{parentId}}, {{startDate}}",
+      "dataTransformation": "buildTaskTree(results)"
+    },
+    {
+      "name": "Resource Allocation Query",
+      "sqlTemplate": "SELECT {{taskId}}, {{resourceId}}, {{allocation}} FROM {{allocationTable}} JOIN {{taskTable}} ON {{taskId}}",
+      "dataTransformation": "groupByResource(results)"
+    },
+    {
+      "name": "Task Dependencies Query",
+      "sqlTemplate": "SELECT {{fromTask}}, {{toTask}}, {{type}} FROM {{dependencyTable}}",
+      "dataTransformation": "buildDependencyGraph(results)"
+    }
+  ]
+}

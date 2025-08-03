@@ -1,0 +1,108 @@
+{
+  "type": "network-graph",
+  "name": "Network Graph",
+  "description": "네트워크 그래프 및 관계 시각화",
+  "requiredLibraries": ["react-force-graph", "d3-force", "@nivo/network"],
+  "systemPrompt": "Create a network graph visualization for displaying relationships, connections, and network structures with interactive nodes and edges.",
+  "componentStructure": {
+    "mainComponents": [
+      {
+        "name": "NetworkGraph",
+        "description": "Force-directed network graph",
+        "props": [
+          { "name": "nodes", "type": "Node[]" },
+          { "name": "links", "type": "Link[]" },
+          { "name": "layout", "type": "LayoutType" },
+          { "name": "onNodeClick", "type": "(node: Node) => void" },
+          { "name": "onLinkClick", "type": "(link: Link) => void" }
+        ],
+        "features": ["force-simulation", "zoom-pan", "node-dragging", "clustering"]
+      },
+      {
+        "name": "NodePanel",
+        "description": "Node information and controls",
+        "props": [
+          { "name": "selectedNode", "type": "Node | null" },
+          { "name": "neighbors", "type": "Node[]" },
+          { "name": "onHighlight", "type": "(nodes: Node[]) => void" }
+        ],
+        "features": ["details", "connections", "metrics", "actions"]
+      },
+      {
+        "name": "GraphControls",
+        "description": "Graph manipulation controls",
+        "props": [
+          { "name": "layout", "type": "LayoutType" },
+          { "name": "onLayoutChange", "type": "(layout: LayoutType) => void" },
+          { "name": "filters", "type": "FilterOptions" }
+        ],
+        "features": ["layout-selector", "filters", "search", "export"]
+      }
+    ],
+    "supportingComponents": [
+      {
+        "name": "MiniMap",
+        "description": "Overview navigation map",
+        "props": [
+          { "name": "graph", "type": "GraphData" },
+          { "name": "viewport", "type": "Viewport" }
+        ],
+        "features": ["overview", "navigation", "highlighting"]
+      },
+      {
+        "name": "GraphMetrics",
+        "description": "Network metrics display",
+        "props": [
+          { "name": "nodes", "type": "Node[]" },
+          { "name": "links", "type": "Link[]" }
+        ],
+        "features": ["centrality", "clustering", "density", "components"]
+      }
+    ],
+    "hooks": [
+      {
+        "name": "useNetworkData",
+        "description": "Hook for fetching and processing network data"
+      },
+      {
+        "name": "useForceSimulation",
+        "description": "Hook for managing force simulation"
+      },
+      {
+        "name": "useGraphMetrics",
+        "description": "Hook for calculating network metrics"
+      }
+    ],
+    "utils": [
+      {
+        "name": "graphUtils",
+        "description": "Graph manipulation and analysis utilities"
+      },
+      {
+        "name": "layoutAlgorithms",
+        "description": "Various graph layout algorithms"
+      },
+      {
+        "name": "networkMetrics",
+        "description": "Network analysis metrics calculations"
+      }
+    ]
+  },
+  "dataProcessingPatterns": [
+    {
+      "name": "Node-Link Query",
+      "sqlTemplate": "SELECT {{sourceColumn}} as source, {{targetColumn}} as target, {{weightColumn}} as weight FROM {{table}}",
+      "dataTransformation": "buildGraphFromEdges(results)"
+    },
+    {
+      "name": "Node Attributes Query",
+      "sqlTemplate": "SELECT {{idColumn}} as id, {{nameColumn}} as name, {{attributeColumns}} FROM {{nodeTable}}",
+      "dataTransformation": "enrichNodesWithAttributes(results)"
+    },
+    {
+      "name": "Hierarchical Query",
+      "sqlTemplate": "WITH RECURSIVE tree AS (SELECT * FROM {{table}} WHERE {{parentColumn}} IS NULL UNION ALL SELECT t.* FROM {{table}} t JOIN tree ON t.{{parentColumn}} = tree.{{idColumn}}) SELECT * FROM tree",
+      "dataTransformation": "buildHierarchicalGraph(results)"
+    }
+  ]
+}
