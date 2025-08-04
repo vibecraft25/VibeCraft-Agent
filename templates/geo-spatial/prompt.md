@@ -3,6 +3,51 @@
 ### Overview
 Create an interactive map-based visualization for displaying geographic data points, regions, and spatial relationships. The application should support various map layers, clustering, heatmaps, and location-based analytics.
 
+### Required Dependencies:
+```json
+{
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.12.0",
+    "recharts": "^2.12.7",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-cluster": "^2.1.0",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.12"
+  }
+}
+```
+
+### PostCSS Configuration:
+For Tailwind CSS with latest Vite, use this postcss.config.js:
+```javascript
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+### CRITICAL: Import Requirements
+When using MarkerClusterGroup, you MUST import from 'react-leaflet-cluster' package (NOT from leaflet.markercluster):
+```javascript
+import MarkerClusterGroup from 'react-leaflet-cluster';
+```
+
+### CRITICAL: Layout Requirements for Map Display
+**IMPORTANT**: Leaflet maps require explicit height. The main container MUST use:
+```jsx
+<main className="flex-grow relative h-0 min-h-0">
+  {/* Map component here */}
+</main>
+```
+This ensures the MapContainer with `height: 100%` renders properly. Without this, the map will have 0 height and won't display.
+
 ### Required Components:
 
 1. **InteractiveMap**: Main map component using React Leaflet
@@ -15,6 +60,9 @@ Create an interactive map-based visualization for displaying geographic data poi
      - Fullscreen mode
    - **Implementation**:
      ```jsx
+     // IMPORTANT: MarkerClusterGroup from 'react-leaflet-cluster' package
+     import MarkerClusterGroup from 'react-leaflet-cluster';
+     
      <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
        <MarkerClusterGroup>

@@ -174,12 +174,40 @@ interface KPICard {
 - Screen reader friendly
 - High contrast mode support
 
+### 11. Package.json Dependencies
+Ensure your package.json includes these exact versions:
+```json
+{
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.12.0",
+    "recharts": "^2.12.7",
+    "lucide-react": "^0.454.0",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.10"
+  }
+}
+```
+
 ## Final Implementation Notes
-- Start with loading the SQLite database
+- Start with loading the SQLite database using the exact pattern shown in system prompt
 - Calculate all KPIs on initial load
 - Implement filtering that updates all components
 - Ensure smooth animations and transitions
 - Add loading states for all async operations
 - Include a help/info modal explaining metrics
+- IMPORTANT: Use Vite, not Create React App
+- IMPORTANT: Place index.html in root directory, not in public/
+- IMPORTANT: Include all required config files (vite.config.ts, tailwind.config.js, etc.)
 
 Create a professional, performant dashboard that provides immediate insights into the data with intuitive navigation and interaction patterns.

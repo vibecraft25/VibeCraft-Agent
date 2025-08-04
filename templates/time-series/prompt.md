@@ -19,12 +19,13 @@ You have access to a SQLite database with the following structure:
 
 ## Implementation Requirements
 
-### 1. Technology Stack
-- **Framework**: React 18.x with TypeScript
-- **Charts**: Recharts for time series visualization
-- **Database**: sql.js for in-browser SQLite
-- **Styling**: Tailwind CSS
-- **Date Handling**: date-fns
+### 1. Technology Stack (USE EXACT VERSIONS)
+- **Framework**: React 18.3.1 with TypeScript 5.6.2
+- **Build Tool**: Vite 5.4.10
+- **Charts**: Recharts 2.12.7 for time series visualization
+- **Database**: sql.js 1.12.0 for in-browser SQLite
+- **Styling**: Tailwind CSS 3.4.15
+- **Date Handling**: date-fns 3.6.0
 
 ### 2. Core Features to Implement
 
@@ -33,6 +34,62 @@ You have access to a SQLite database with the following structure:
 2. Execute SQL queries to fetch time-series data
 3. Process and transform data for visualization
 4. Handle date parsing and formatting
+
+**Example Implementation:**
+```typescript
+import { useState, useEffect } from 'react';
+import initSqlJs from 'sql.js';
+import { format, parseISO } from 'date-fns';
+import type { Database } from 'sql.js';
+
+interface TimeSeriesData {
+  date: string;
+  value: number;
+  label?: string;
+}
+
+const useTimeSeriesData = (query: string) => {
+  const [data, setData] = useState<TimeSeriesData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const sqlPromise = initSqlJs({
+          locateFile: file => `https://sql.js.org/dist/${file}`
+        });
+        const dataPromise = fetch('/data.sqlite').then(res => res.arrayBuffer());
+        const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
+        const db = new SQL.Database(new Uint8Array(buf));
+        
+        const stmt = db.prepare(query);
+        const results: TimeSeriesData[] = [];
+        while (stmt.step()) {
+          const row = stmt.getAsObject();
+          results.push({
+            date: row.date as string,
+            value: Number(row.value),
+            label: row.label as string
+          });
+        }
+        stmt.free();
+        db.close();
+        
+        setData(results);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [query]);
+
+  return { data, loading, error };
+};
+```
 
 #### Visualization Components
 1. **Main Time Series Chart**
@@ -46,6 +103,53 @@ You have access to a SQLite database with the following structure:
    - Aggregation period selector (daily, weekly, monthly, yearly)
    - Metric selector if multiple numeric columns exist
    - Export functionality (CSV/PNG)
+
+**Example Chart Component:**
+```typescript
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
+
+interface ChartProps {
+  data: TimeSeriesData[];
+  title: string;
+}
+
+export const TimeSeriesChart: React.FC<ChartProps> = ({ data, title }) => {
+  const formatXAxis = (tickItem: string) => {
+    return format(parseISO(tickItem), 'MMM dd');
+  };
+
+  return (
+    <div className="w-full h-96 bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+          <XAxis 
+            dataKey="date" 
+            tickFormatter={formatXAxis}
+            className="text-sm"
+          />
+          <YAxis className="text-sm" />
+          <Tooltip 
+            labelFormatter={(value) => format(parseISO(value as string), 'PPP')}
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #e5e7eb' }}
+          />
+          <Legend />
+          <Line 
+            type="monotone" 
+            dataKey="value" 
+            stroke="#3b82f6" 
+            strokeWidth={2}
+            dot={{ fill: '#3b82f6', r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+```
 
 3. **Summary Statistics**
    - Display key metrics (total, average, min, max)
@@ -109,13 +213,27 @@ src/
    - Date Format: "{{DATE_FORMAT}}"
    - Aggregation: {{AGGREGATION_TYPE}}
 
-### 6. Sample Data Structure
-The chart should expect data in this format:
-```typescript
-interface TimeSeriesDataPoint {
-  date: Date;
-  value: number;
-  label?: string;
+### 6. Package.json Dependencies
+Ensure your package.json includes these exact versions:
+```json
+{
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.12.0",
+    "recharts": "^2.12.7",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.10"
+  }
 }
 ```
 

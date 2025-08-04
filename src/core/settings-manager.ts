@@ -135,9 +135,24 @@ export class SettingsManager implements ISettingsManager {
       };
     }
     
+    // Check if we should use UV for Python packages
+    const pythonCommand = this.findPythonCommand();
+    
+    if (pythonCommand === 'uvx') {
+      // UV executable mode
+      return {
+        command: 'uvx',
+        args: [
+          'mcp-server-sqlite',
+          '--db-path',
+          sqlitePath
+        ]
+      };
+    }
+    
     // Python module execution
     return {
-      command: 'python',
+      command: pythonCommand,
       args: [
         '-m',
         'mcp_server_sqlite',
@@ -223,11 +238,24 @@ export class SettingsManager implements ISettingsManager {
    * Get default settings template
    */
   getDefaultSettings(): Settings {
+    // Try to find python3 or python in the system
+    const pythonCommand = this.findPythonCommand();
+    
+    // Different args based on command type
+    let args: string[];
+    if (pythonCommand === 'uvx') {
+      // UV executable mode
+      args = ['mcp-server-sqlite', '--db-path', ''];
+    } else {
+      // Python module mode
+      args = ['-m', 'mcp_server_sqlite', '--db-path', ''];
+    }
+    
     return {
       mcpServers: {
         sqlite: {
-          command: 'python',
-          args: ['-m', 'mcp_server_sqlite', '--db-path', ''],
+          command: pythonCommand,
+          args: args,
           timeout: this.defaultTimeout,
           trust: true,
           includeTools: [
@@ -241,5 +269,41 @@ export class SettingsManager implements ISettingsManager {
         }
       }
     };
+  }
+  
+  /**
+   * Find available Python command
+   */
+  private findPythonCommand(): string {
+    const { execSync } = require('child_process');
+    
+    // First, check if UV is available for running Python packages
+    try {
+      execSync('uv --version', { stdio: 'pipe' });
+      // UV is available, use it to run the MCP server
+      return 'uvx';
+    } catch {
+      // UV not found, try Python directly
+    }
+    
+    const possiblePaths = [
+      '/opt/homebrew/bin/python3',
+      '/usr/bin/python3',
+      '/usr/local/bin/python3',
+      'python3',
+      'python'
+    ];
+    
+    for (const pythonPath of possiblePaths) {
+      try {
+        execSync(`${pythonPath} --version`, { stdio: 'pipe' });
+        return pythonPath;
+      } catch {
+        // Try next path
+      }
+    }
+    
+    // Default fallback
+    return 'python3';
   }
 }
