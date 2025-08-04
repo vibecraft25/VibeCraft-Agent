@@ -287,7 +287,7 @@ describe('OutputValidator', () => {
       const result = await validator.validate(mockOutputPath);
       
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('No start script'))).toBe(true);
+      expect(result.errors.some(e => e.message.includes('No start or dev script'))).toBe(true);
       expect(result.warnings.some(w => w.message.includes('No build script'))).toBe(true);
     });
   });

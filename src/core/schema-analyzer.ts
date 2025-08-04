@@ -74,6 +74,9 @@ export interface DataDistribution {
   maxValue?: any;
   avgLength?: number;
   dataType: 'numeric' | 'text' | 'date' | 'boolean' | 'mixed';
+  inferredType?: string; // 더 구체적인 타입 (currency, email, url 등)
+  sampleValues?: any[]; // 샘플 데이터
+  format?: string; // 날짜 포맷 등
 }
 
 export class SchemaAnalyzer implements ISchemaAnalyzer {

@@ -56,6 +56,7 @@ export interface ErrorInfo {
 export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
   private activeProcesses: Map<number, ChildProcess>;
   private processStatuses: Map<number, ExecutionStatus>;
+  private geminiPath: string = 'gemini';
   
   constructor() {
     super();
@@ -113,10 +114,27 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
   
   private async verifyGeminiCLI(): Promise<void> {
     try {
-      const { stdout } = await execAsync('gemini --version');
-      if (!stdout.includes('gemini')) {
-        throw new Error('Invalid Gemini CLI installation');
+      // Try to find gemini in common locations
+      const possiblePaths = [
+        'gemini',
+        '/usr/local/bin/gemini',
+        `${process.env.HOME}/.local/bin/gemini`,
+        '/Users/infograb/.nvm/versions/node/v22.16.0/bin/gemini'
+      ];
+      
+      for (const geminiPath of possiblePaths) {
+        try {
+          const { stdout } = await execAsync(`${geminiPath} --version`);
+          if (stdout.includes('0.1.9')) {
+            this.geminiPath = geminiPath;
+            return;
+          }
+        } catch {
+          // Try next path
+        }
       }
+      
+      throw new Error('Gemini CLI not found in PATH or common locations');
     } catch (error) {
       throw new Error('Gemini CLI not found. Please install it first.');
     }
@@ -126,9 +144,14 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
     // 작업 디렉토리 생성
     await fs.ensureDir(workspaceDir);
     
-    // 기존 파일 확인
+    // 기존 파일 확인 (VibeCraft가 생성한 .gemini와 public 폴더는 허용)
     const existingFiles = await fs.readdir(workspaceDir);
-    if (existingFiles.length > 0 && !existingFiles.every(f => f.startsWith('.'))) {
+    const allowedFiles = ['.gemini', 'public'];
+    const hasDisallowedFiles = existingFiles.some(file => 
+      !file.startsWith('.') && !allowedFiles.includes(file)
+    );
+    
+    if (hasDisallowedFiles) {
       throw new Error('Workspace directory is not empty. Please provide an empty directory.');
     }
   }
@@ -173,7 +196,7 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         GEMINI_SETTINGS_DIR: config.settingsDir
       };
       
-      const geminiProcess = spawn('gemini', args, {
+      const geminiProcess = spawn(this.geminiPath, args, {
         cwd: config.workspaceDir,
         env,
         stdio: ['pipe', 'pipe', 'pipe']
@@ -193,21 +216,35 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         geminiProcess.stdin.end();
       }
       
-      // stdout 처리
+      // stdout 처리 - 실시간 출력
       geminiProcess.stdout.on('data', (data) => {
-        const message = data.toString().trim();
-        if (message) {
-          logs.push(this.createLog('info', message));
-          this.updateProcessStatus(geminiProcess.pid!, message);
-          this.emit('progress', { processId: geminiProcess.pid!, message });
+        const message = data.toString();
+        if (message.trim()) {
+          logs.push(this.createLog('info', message.trim()));
+          this.updateProcessStatus(geminiProcess.pid!, message.trim());
+          this.emit('progress', { processId: geminiProcess.pid!, message: message.trim() });
+        }
+        // 실시간 출력 (줄바꿈 유지)
+        if (config.debug) {
+          process.stdout.write(message);
         }
       });
       
-      // stderr 처리
+      // stderr 처리 - 실시간 출력
       geminiProcess.stderr.on('data', (data) => {
-        const message = data.toString().trim();
-        if (message) {
-          logs.push(this.createLog('warn', message));
+        const message = data.toString();
+        if (message.trim()) {
+          // MCP 서버 연결 실패는 경고가 아닌 정보로 처리 (Gemini CLI가 계속 진행함)
+          const logLevel = message.includes('failed to start or connect to MCP server') ? 'info' : 'warn';
+          logs.push(this.createLog(logLevel, message.trim()));
+          
+          if (logLevel === 'warn') {
+            this.emit('error', { processId: geminiProcess.pid!, message: message.trim() });
+          }
+        }
+        // 실시간 출력 (줄바꿈 유지)
+        if (config.debug) {
+          process.stderr.write(message);
         }
       });
       
@@ -245,6 +282,7 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       if (config.timeout) {
         setTimeout(() => {
           if (this.activeProcesses.has(geminiProcess.pid!)) {
+            logs.push(this.createLog('error', `Execution timeout after ${config.timeout}ms`));
             geminiProcess.kill('SIGTERM');
             reject(new Error('Execution timeout'));
           }

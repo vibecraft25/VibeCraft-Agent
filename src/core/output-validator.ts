@@ -115,9 +115,14 @@ export class OutputValidator implements IOutputValidator {
         name: 'index.html exists',
         description: 'Check if index.html exists',
         type: 'file-exists',
-        target: 'public/index.html',
-        validate: async (ctx) => await fs.pathExists(path.join(ctx.outputPath, 'public/index.html')),
-        errorMessage: 'public/index.html not found',
+        target: 'index.html',
+        validate: async (ctx) => {
+          // Vite uses index.html in root, traditional React uses public/index.html
+          const rootIndex = await fs.pathExists(path.join(ctx.outputPath, 'index.html'));
+          const publicIndex = await fs.pathExists(path.join(ctx.outputPath, 'public/index.html'));
+          return rootIndex || publicIndex;
+        },
+        errorMessage: 'index.html not found (neither in root nor in public/)',
         critical: true
       },
       {
@@ -338,10 +343,11 @@ export class OutputValidator implements IOutputValidator {
     if (context.packageJson && context.packageJson.scripts) {
       const scripts = context.packageJson.scripts;
       
-      if (!scripts.start) {
+      // Vite uses 'dev' script, traditional React uses 'start'
+      if (!scripts.start && !scripts.dev) {
         errors.push({
           type: 'npm scripts',
-          message: 'No start script defined in package.json',
+          message: 'No start or dev script defined in package.json',
           severity: 'error'
         });
       }
@@ -365,7 +371,7 @@ export class OutputValidator implements IOutputValidator {
   ): Promise<ValidationSummary> {
     const requiredFiles = [
       'package.json',
-      'public/index.html',
+      'index.html', // Vite는 루트에, 기존은 public에
       'src/App' // 확장자는 다양할 수 있음
     ];
     
@@ -376,9 +382,11 @@ export class OutputValidator implements IOutputValidator {
       missingFiles.push('package.json');
     }
     
-    // index.html 확인
-    if (!context.files.has(path.join('public', 'index.html'))) {
-      missingFiles.push('public/index.html');
+    // index.html 확인 (Vite는 루트에, 기존 React는 public에)
+    const hasIndexHtml = context.files.has('index.html') || 
+                        context.files.has(path.join('public', 'index.html'));
+    if (!hasIndexHtml) {
+      missingFiles.push('index.html');
     }
     
     // App 컴포넌트 확인

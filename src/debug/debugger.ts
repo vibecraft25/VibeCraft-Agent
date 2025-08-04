@@ -379,7 +379,7 @@ export class VibeCraftDebugger {
     performance.mark(`${label}-end`);
     performance.measure(label, `${label}-start`, `${label}-end`);
     
-    const measure = performance.getEntriesByName(label)[0] as PerformanceMeasure;
+    const measure = performance.getEntriesByName(label)[0] as any;
     const duration = measure.duration;
     
     this.trace('profile', `${label}: ${duration.toFixed(2)}ms`);

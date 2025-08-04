@@ -149,9 +149,8 @@ export class VibeCraftAgent {
         // 6. Create settings for Gemini CLI
         this.log('info', 'Creating Gemini CLI settings...');
         
-        // Copy SQLite file to working directory
-        const sqliteFileName = path.basename(normalizedRequest.sqlitePath);
-        const targetSqlitePath = path.join(normalizedRequest.workingDir, 'public', sqliteFileName);
+        // Copy SQLite file to working directory as 'data.sqlite' for consistency
+        const targetSqlitePath = path.join(normalizedRequest.workingDir, 'public', 'data.sqlite');
         await this.copyDatabaseFile(normalizedRequest.sqlitePath, targetSqlitePath);
         this.log('info', `SQLite file copied to: ${targetSqlitePath}`);
         
@@ -193,7 +192,8 @@ export class VibeCraftAgent {
           schemaInfo,
           projectContext: {
             projectName: normalizedRequest.projectName || 'vibecraft-app',
-            outputDir: normalizedRequest.workingDir
+            outputDir: normalizedRequest.workingDir,
+            visualizationType: normalizedRequest.visualizationType
           }
         };
         
@@ -275,11 +275,20 @@ export class VibeCraftAgent {
           prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
           settingsDir: path.dirname(settingsPath),
           model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
-          timeout: 300000,  // 5분
-          debug: normalizedRequest.debug,
+          timeout: 3600000,  // 60분으로 증가
+          debug: normalizedRequest.debug || true,  // 디버그 모드 강제 활성화
           autoApprove: true,  // 자동화를 위해 필수
           checkpointing: false  // 필요시 활성화
         };
+        
+        // ExecutionEngine 이벤트 리스너 등록
+        this.executionEngine.on('progress', (data) => {
+          this.log('info', `[Gemini CLI] ${data.message}`);
+        });
+        
+        this.executionEngine.on('error', (data) => {
+          this.log('error', `[Gemini CLI Error] ${data.message}`);
+        });
         
         const executionResult = await this.executionEngine.execute(executionConfig);
         
