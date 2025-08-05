@@ -68,14 +68,7 @@ export class TemplateSelector {
       return textColumns >= 2 && numericColumns >= 1;
     });
     
-    if (hasMatrixStructure) {
-      suggestions.push({ type: 'heatmap', score: 75 });
-    }
-    
-    // Network Graph: 관계가 복잡한 경우
-    if (schemaInfo.relationships.length >= 3) {
-      suggestions.push({ type: 'network-graph', score: 80 });
-    }
+    // Heatmap과 Network Graph는 지원하지 않음
     
     // 점수 순으로 정렬하여 반환
     return suggestions
@@ -154,18 +147,6 @@ export class TemplateSelector {
         }
         break;
         
-      case 'gantt-chart':
-        const hasStartEndDates = schemaInfo.tables.some(table => {
-          const dateColumns = table.columns.filter(col => 
-            col.dataDistribution?.dataType === 'date'
-          );
-          return dateColumns.length >= 2;
-        });
-        if (!hasStartEndDates) {
-          score -= 40;
-          reasons.push('Gantt chart requires at least two date columns (start and end)');
-        }
-        break;
     }
     
     return {

@@ -1,14 +1,8 @@
 export type VisualizationType = 
   | 'time-series'
   | 'geo-spatial'
-  | 'gantt-chart'
   | 'kpi-dashboard'
-  | 'comparison'
-  | 'funnel-analysis'
-  | 'cohort-analysis'
-  | 'heatmap'
-  | 'network-graph'
-  | 'custom';
+  | 'comparison';
 
 export interface AgentCliArgs {
   sqlitePath: string;

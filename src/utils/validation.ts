@@ -5,14 +5,8 @@ import path from 'path';
 export const VALID_VISUALIZATION_TYPES: VisualizationType[] = [
   'time-series',
   'geo-spatial',
-  'gantt-chart',
   'kpi-dashboard',
-  'comparison',
-  'funnel-analysis',
-  'cohort-analysis',
-  'heatmap',
-  'network-graph',
-  'custom'
+  'comparison'
 ];
 
 export function validateSqlitePath(sqlitePath: string): void {

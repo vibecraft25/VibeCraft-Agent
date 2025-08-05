@@ -194,6 +194,14 @@ const rankByMetric = (data, metric) => {
 };
 ```
 
+### Implementation Guidelines:
+
+**CRITICAL: Import Rules**
+- ALWAYS use @ alias for imports within src/ directory
+- Example: `import { ComparisonChart } from '@/components/ComparisonChart'`
+- NEVER use relative imports like `../components/ComparisonChart`
+- If using Radix UI components, install them separately: `npm install @radix-ui/react-tabs`
+
 ### Chart Configurations:
 
 ```javascript

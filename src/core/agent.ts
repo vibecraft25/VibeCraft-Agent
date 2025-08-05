@@ -1,7 +1,7 @@
 import { AgentCliArgs, AgentExecutionResult, LogEntry } from '../types';
 import { RequestParser } from './parser';
 import { RequestNormalizer } from './request-normalizer';
-import { AdvancedValidator } from './parser-advanced';
+import { AdvancedValidator } from './sqlite-validator';
 import { SchemaAnalyzer } from './schema-analyzer';
 import { TemplateEngine } from './template-engine';
 import { SettingsManager } from './settings-manager';
@@ -12,7 +12,6 @@ import { EnvironmentManager } from './environment-manager';
 import { SchemaSummarizer } from '../utils/schema-summarizer';
 import { TemplateSelector } from '../utils/template-selector';
 import { SettingsHelper } from '../utils/settings-helper';
-import { PromptValidator } from '../utils/prompt-validator';
 import { ValidationReporter } from '../utils/validation-reporter';
 import chalk from 'chalk';
 import path from 'path';
@@ -197,68 +196,11 @@ export class VibeCraftAgent {
           }
         };
         
-        // Validate components
-        const componentValidation = PromptValidator.validateComponents(promptComponents);
-        if (!componentValidation.valid) {
-          this.log('error', 'Prompt component validation failed', componentValidation.errors);
-          return {
-            success: false,
-            outputPath: normalizedRequest.workingDir,
-            executionTime: Date.now() - this.startTime,
-            logs: this.logs,
-            error: {
-              code: 'PROMPT_VALIDATION_ERROR',
-              message: componentValidation.errors.join('; ')
-            },
-            generatedFiles: [settingsPath]
-          };
-        }
         
         // Build the prompt
         const finalPrompt = this.promptBuilder.buildPrompt(promptComponents);
         this.log('info', 'Final prompt built successfully');
         
-        // Validate final prompt
-        const promptValidation = PromptValidator.validatePrompt(finalPrompt);
-        if (!promptValidation.valid) {
-          this.log('error', 'Final prompt validation failed', promptValidation.errors);
-          return {
-            success: false,
-            outputPath: normalizedRequest.workingDir,
-            executionTime: Date.now() - this.startTime,
-            logs: this.logs,
-            error: {
-              code: 'PROMPT_VALIDATION_ERROR',
-              message: promptValidation.errors.join('; ')
-            },
-            generatedFiles: [settingsPath]
-          };
-        }
-        
-        // Log warnings if any
-        if (promptValidation.warnings.length > 0) {
-          promptValidation.warnings.forEach(warning => {
-            this.log('warn', warning);
-          });
-        }
-        
-        // Log prompt stats
-        if (promptValidation.stats) {
-          this.log('info', 'Prompt statistics:', {
-            characters: promptValidation.stats.characterCount,
-            words: promptValidation.stats.wordCount,
-            estimatedTokens: promptValidation.stats.estimatedTokens
-          });
-        }
-        
-        // Check if optimization is needed
-        if (!PromptValidator.isOptimized(finalPrompt)) {
-          this.log('warn', 'Prompt may benefit from optimization');
-          const suggestions = PromptValidator.getOptimizationSuggestions(finalPrompt);
-          suggestions.forEach(suggestion => {
-            this.log('info', `Optimization suggestion: ${suggestion}`);
-          });
-        }
         
         // Save prompt to file for debugging
         if (normalizedRequest.debug) {
@@ -275,7 +217,7 @@ export class VibeCraftAgent {
           prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
           settingsDir: path.dirname(settingsPath),
           model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
-          timeout: 3600000,  // 60분으로 증가
+          timeout: 900000,  // 15분 타임아웃
           debug: normalizedRequest.debug || true,  // 디버그 모드 강제 활성화
           autoApprove: true,  // 자동화를 위해 필수
           checkpointing: false  // 필요시 활성화
@@ -348,8 +290,7 @@ export class VibeCraftAgent {
           validationResult,
           // 디버그 정보 (필요시)
           debugInfo: normalizedRequest.debug ? { 
-            schemaInfo, 
-            promptStats: promptValidation.stats,
+            schemaInfo,
             settingsPath,
             promptPath: path.join(normalizedRequest.workingDir, '.gemini', 'prompt.md'),
             executionLogs: executionResult.logs,
