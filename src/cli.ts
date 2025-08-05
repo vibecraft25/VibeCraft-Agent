@@ -13,14 +13,8 @@ if (process.argv.includes('--list-types')) {
   const types = [
     { type: 'time-series', description: '시계열 데이터 분석 및 트렌드 시각화' },
     { type: 'geo-spatial', description: '지리적 데이터 매핑 및 위치 기반 분석' },
-    { type: 'gantt-chart', description: '프로젝트 일정 및 작업 진행 상황' },
     { type: 'kpi-dashboard', description: '핵심 성과 지표 대시보드' },
-    { type: 'comparison', description: '데이터 비교 및 대조 분석' },
-    { type: 'funnel-analysis', description: '퍼널 분석 및 전환율 추적' },
-    { type: 'cohort-analysis', description: '코호트 분석 및 사용자 행동 패턴' },
-    { type: 'heatmap', description: '히트맵 및 밀도 분석' },
-    { type: 'network-graph', description: '네트워크 관계 및 연결 시각화' },
-    { type: 'custom', description: '사용자 정의 시각화' }
+    { type: 'comparison', description: '데이터 비교 및 대조 분석' }
   ];
   
   console.log(chalk.blue('\nAvailable visualization types:\n'));
@@ -66,6 +60,7 @@ program
         console.log(chalk.yellow(`  cd ${result.outputPath}`));
         console.log(chalk.yellow('  npm install'));
         console.log(chalk.yellow('  npm start'));
+        process.exit(0);  // 성공 시 정상 종료
       } else {
         console.error(chalk.red(`❌ Generation failed: ${result.error?.message || 'Unknown error'}`));
         if (options.debug && result.logs.length > 0) {

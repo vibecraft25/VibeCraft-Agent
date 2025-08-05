@@ -252,6 +252,11 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       geminiProcess.on('close', (code) => {
         this.activeProcesses.delete(geminiProcess.pid!);
         
+        // 모든 이벤트 리스너 제거
+        this.removeAllListeners('progress');
+        this.removeAllListeners('error');
+        this.removeAllListeners('cancelled');
+        
         if (code === 0) {
           this.processStatuses.set(geminiProcess.pid!, {
             processId: geminiProcess.pid!,

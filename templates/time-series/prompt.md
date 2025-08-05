@@ -107,7 +107,8 @@ const useTimeSeriesData = (query: string) => {
 **Example Chart Component:**
 ```typescript
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import type { TimeSeriesData } from '@/types';
 
 interface ChartProps {
   data: TimeSeriesData[];
@@ -192,6 +193,11 @@ src/
 ```
 
 ### 5. Implementation Guidelines
+
+**CRITICAL: Import Rules**
+- ALWAYS use @ alias for imports within src/ directory
+- Example: `import { TimeSeriesChart } from '@/components/TimeSeriesChart'`
+- NEVER use relative imports like `../components/TimeSeriesChart`
 
 1. **Performance Optimization**
    - Implement data virtualization for large datasets

@@ -95,8 +95,14 @@ export class TemplateEngine implements ITemplateEngine {
     const metadata = await fs.readJson(metaPath);
     
     // prompt.md 읽기
-    const promptPath = path.join(templateDir, 'prompt.md');
-    const promptExists = await fs.pathExists(promptPath);
+    // Try simple prompt first, fallback to original
+    let promptPath = path.join(templateDir, 'prompt-simple.md');
+    let promptExists = await fs.pathExists(promptPath);
+    
+    if (!promptExists) {
+      promptPath = path.join(templateDir, 'prompt.md');
+      promptExists = await fs.pathExists(promptPath);
+    }
     if (!promptExists) {
       throw new Error(`Template prompt not found: ${promptPath}`);
     }
