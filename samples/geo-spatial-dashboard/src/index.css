@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-50 text-gray-800;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  @apply bg-white rounded-xl shadow-lg border-none;
+}
+
+.custom-popup .leaflet-popup-content {
+  @apply p-0 m-0;
+}
+
+.custom-popup .leaflet-popup-tip {
+  @apply bg-white;
+}
+
+.custom-div-icon {
+  background: transparent;
+  border: none;
+}

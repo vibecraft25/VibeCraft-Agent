@@ -1,0 +1,38 @@
+# Development files
+.env
+.env.local
+.vscode/
+.idea/
+
+# Test files
+tests/
+jest.*.config.js
+test-*/
+*.test.ts
+*.spec.ts
+
+# Source files (if publishing compiled version)
+# src/
+
+# Documentation source
+docs/
+
+# Git files
+.git/
+.gitignore
+
+# Build tools
+.eslintrc*
+.prettierrc*
+tsconfig.json
+
+# Samples (optional - include if you want)
+# samples/
+
+# Temporary files
+*.log
+*.tmp
+temp/
+tmp/
+output/
+generated/
