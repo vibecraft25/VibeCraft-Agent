@@ -148,15 +148,10 @@ export class VibeCraftAgent {
         // 6. Create settings for Gemini CLI
         this.log('info', 'Creating Gemini CLI settings...');
         
-        // Copy SQLite file to working directory as 'data.sqlite' for consistency
-        const targetSqlitePath = path.join(normalizedRequest.workingDir, 'public', 'data.sqlite');
-        await this.copyDatabaseFile(normalizedRequest.sqlitePath, targetSqlitePath);
-        this.log('info', `SQLite file copied to: ${targetSqlitePath}`);
-        
-        // Generate settings.json
+        // Generate settings.json with original SQLite path
         const settingsPath = await this.settingsManager.generateSettings({
           workspaceDir: normalizedRequest.workingDir,
-          sqlitePath: targetSqlitePath,
+          sqlitePath: normalizedRequest.sqlitePath,  // Use original path for now
           mcpServerPath: EnvironmentManager.getMCPServerPath(),
           timeout: EnvironmentManager.getTimeout(),
           trust: true
@@ -209,6 +204,21 @@ export class VibeCraftAgent {
           this.log('debug', `Prompt saved to: ${promptPath}`);
         }
         
+        // 7.5. Create public directory and copy SQLite file BEFORE Gemini CLI execution
+        this.log('info', 'Preparing SQLite file for React app...');
+        const fs = await import('fs-extra');
+        const publicDir = path.join(normalizedRequest.workingDir, 'public');
+        const targetSqlitePath = path.join(publicDir, 'data.sqlite');
+        
+        try {
+          await fs.ensureDir(publicDir);
+          await this.copyDatabaseFile(normalizedRequest.sqlitePath, targetSqlitePath);
+          this.log('info', `✅ SQLite file copied to: ${targetSqlitePath}`);
+        } catch (error) {
+          this.log('error', `Failed to copy SQLite file: ${error}`);
+          // Continue anyway - Gemini might handle it
+        }
+        
         // 8. Execute Gemini CLI
         this.log('info', 'Executing Gemini CLI...');
         
@@ -217,7 +227,7 @@ export class VibeCraftAgent {
           prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
           settingsDir: path.dirname(settingsPath),
           model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
-          timeout: 900000,  // 15분 타임아웃
+          timeout: 300000,  // 5분 타임아웃 (npm install 시간 고려)
           debug: normalizedRequest.debug || true,  // 디버그 모드 강제 활성화
           autoApprove: true,  // 자동화를 위해 필수
           checkpointing: false  // 필요시 활성화
