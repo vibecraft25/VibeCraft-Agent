@@ -5,6 +5,10 @@ import chalk from 'chalk';
 import { VibeCraftAgent } from './core/agent';
 import { AgentCliArgs } from './types';
 import { version } from '../package.json';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const program = new Command();
 
@@ -37,6 +41,16 @@ program
   .action(async (options) => {
     try {
       console.log(chalk.blue('🚀 VibeCraft-Agent starting...'));
+      
+      // Check for API key
+      if (!process.env.GEMINI_API_KEY) {
+        console.error(chalk.red('❌ Error: GEMINI_API_KEY is not set'));
+        console.log(chalk.yellow('\nPlease set your Gemini API key:'));
+        console.log(chalk.gray('1. Copy .env.example to .env'));
+        console.log(chalk.gray('2. Add your API key to .env'));
+        console.log(chalk.gray('3. Get your key from: https://makersuite.google.com/app/apikey'));
+        process.exit(1);
+      }
       
       // CLI 인자 변환
       const args: AgentCliArgs = {

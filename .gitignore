@@ -42,12 +42,18 @@ test-*/
 output/
 generated/
 
-# SQLite databases (for testing)
+# SQLite databases (except samples)
 *.sqlite
 *.db
+!samples/*.sqlite
 
 # Claude Code
 docs/
 
 # Gemini settings (except templates)
 .gemini/
+
+# Test files
+test-*/
+tests/
+jest.*.config.js

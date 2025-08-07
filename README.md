@@ -22,23 +22,96 @@ SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데�
 - **Tailwind CSS**: 스타일링
 - **sql.js**: 브라우저에서 SQLite 실행
 
-## 🔧 설치
+## 🔧 설치 및 실행
 
-### 1. VibeCraft-Agent 설치
+### 방법 1: 프로젝트 Clone 후 바로 실행 (권장)
 
 ```bash
+# 1. 프로젝트 클론
+git clone https://github.com/your-org/vibecraft-agent
+cd vibecraft-agent
+
+# 2. 의존성 설치 및 빌드
+npm install
+npm run build
+
+# 3. 환경 설정 (.env 파일 생성)
+cp .env.example .env
+# .env 파일을 열어서 GEMINI_API_KEY 설정
+
+# 4. 전역 설치 (선택사항 - 어디서든 vibecraft-agent 명령 사용)
+npm link
+
+# 5. 바로 실행 (전역 설치 안 했을 경우)
+npm run start -- \
+  --sqlite-path ./test-commands/sample-business.sqlite \
+  --visualization-type kpi-dashboard \
+  --user-prompt "주요 비즈니스 메트릭 대시보드" \
+  --output-dir ./output
+```
+
+### 방법 2: 전역 설치 후 사용
+
+```bash
+# 1. VibeCraft-Agent 전역 설치
 git clone https://github.com/your-org/vibecraft-agent
 cd vibecraft-agent
 npm install
 npm run build
 npm link
+
+# 2. 이제 어디서든 사용 가능
+cd ~/my-project
+vibecraft-agent \
+  --sqlite-path ./data.sqlite \
+  --visualization-type time-series \
+  --user-prompt "월별 매출 추이" \
+  --output-dir ./dashboard
 ```
 
-### 2. Gemini CLI 설치
+### 필수 사전 요구사항
 
-Gemini CLI는 별도로 설치해야 합니다. (설치 방법은 Gemini CLI 문서 참조)
+#### 1. Node.js (v18 이상)
 
-### 3. MCP SQLite Server 설치 (선택사항)
+```bash
+# Node.js 버전 확인
+node --version  # v18.0.0 이상이어야 함
+```
+
+#### 2. Gemini API Key (필수)
+
+Google AI Studio에서 API 키를 발급받아야 합니다:
+
+1. [Google AI Studio](https://makersuite.google.com/app/apikey) 방문
+2. "Create API Key" 클릭
+3. 생성된 키를 `.env` 파일에 설정
+
+```bash
+# .env 파일 생성
+cp .env.example .env
+
+# .env 파일 편집하여 API 키 추가
+GEMINI_API_KEY=your-api-key-here
+```
+
+#### 3. Gemini CLI 설치 (필수)
+
+Gemini CLI가 반드시 설치되어 있어야 합니다:
+
+```bash
+# Gemini CLI 설치
+npm install -g @anthropic/gemini
+
+# 설치 확인
+gemini --version
+```
+
+⚠️ **주의**: Gemini CLI는 별도로 설치해야 합니다. 
+설치 방법: https://github.com/anthropics/gemini
+
+#### 4. MCP SQLite Server 설치 (선택사항)
+
+스키마 분석 기능 강화를 위해 권장:
 
 ```bash
 # Python으로 설치
@@ -46,6 +119,25 @@ pip install mcp-server-sqlite
 
 # 또는 UV로 설치
 uv pip install mcp-server-sqlite
+```
+
+## 🚀 빠른 시작
+
+### 샘플 데이터베이스로 테스트
+
+프로젝트에 포함된 샘플 데이터베이스로 바로 테스트:
+
+```bash
+# KPI 대시보드 생성
+npm run start -- \
+  --sqlite-path ./samples/sample-business.sqlite \
+  --visualization-type kpi-dashboard \
+  --user-prompt "주요 비즈니스 메트릭을 카드 형태로 표시" \
+  --output-dir ./output
+
+# 생성된 앱 실행
+cd ./output/vibecraft-kpi-*
+npm run dev
 ```
 
 ## 💻 사용법
@@ -159,6 +251,52 @@ vibecraft-agent \
 - **한국어 지역명 → 좌표 변환**: geo-spatial에서 자동 처리
 - **반응형 디자인**: 모바일부터 데스크톱까지 자동 대응
 
+## ⚙️ 환경 설정
+
+### 환경 변수 설정 방법
+
+VibeCraft-Agent는 `.env` 파일을 통해 환경 설정을 관리합니다:
+
+```bash
+# 1. .env.example 파일 복사
+cp .env.example .env
+
+# 2. .env 파일 편집
+nano .env  # 또는 원하는 편집기 사용
+```
+
+### 필수 환경 변수
+
+**GEMINI_API_KEY만 있으면 실행 가능합니다!**
+
+```bash
+# .env 파일
+GEMINI_API_KEY=your-api-key-here
+```
+
+Google Cloud 설정이나 다른 복잡한 설정은 필요 없습니다. 
+Gemini API Key 하나만 있으면 바로 사용할 수 있습니다.
+
+## 📦 샘플 대시보드
+
+`samples/` 폴더에 실제 생성된 대시보드 예제가 포함되어 있습니다:
+
+### 포함된 샘플:
+- **sample-business.sqlite**: 한국 비즈니스 샘플 데이터베이스
+- **time-series-dashboard**: 시계열 매출 분석 대시보드
+- **kpi-dashboard**: 핵심 비즈니스 메트릭 대시보드  
+- **geo-spatial-dashboard**: 지역별 매출 지도 시각화
+
+### 샘플 실행:
+```bash
+# KPI 대시보드 실행 예시
+cd samples/kpi-dashboard
+npm install
+npm run dev
+```
+
+자세한 내용은 [samples/README.md](./samples/README.md) 참조
+
 ## 🐛 문제 해결
 
 ### Gemini CLI를 찾을 수 없음
@@ -184,12 +322,18 @@ Error: Cannot find module '@/components/...'
 - `tsconfig.json`의 paths 설정 확인
 - `vite.config.ts`의 alias 설정 확인
 
+### 타임아웃 문제
+생성 중 5분 타임아웃이 발생해도 앱은 정상적으로 생성됩니다. 생성된 디렉토리에서:
+```bash
+npm run build  # 빌드 확인
+npm run dev    # 개발 서버 실행
+```
+
 ## 📚 추가 문서
 
-- [기술 아키텍처](./docs/technical-architecture.md)
-- [템플릿 가이드](./docs/template-guide.md)
-- [API 문서](./docs/api.md)
+- [설치 트러블슈팅](./SETUP.md)
 - [기여 가이드](./CONTRIBUTING.md)
+- [샘플 대시보드](./samples/README.md)
 
 ## 🤝 기여하기
 
