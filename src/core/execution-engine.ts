@@ -248,8 +248,22 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         }
       });
       
+      // 타임아웃 설정
+      let timeoutHandle: NodeJS.Timeout | undefined;
+      if (config.timeout && config.timeout > 0) {
+        timeoutHandle = setTimeout(() => {
+          logs.push(this.createLog('error', `Process timed out after ${config.timeout}ms`));
+          geminiProcess.kill('SIGTERM');
+          reject(new Error(`Gemini CLI timed out after ${config.timeout}ms`));
+        }, config.timeout);
+      }
+      
       // 프로세스 종료 처리
       geminiProcess.on('close', (code) => {
+        // 타임아웃 핸들러 정리
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+        }
         this.activeProcesses.delete(geminiProcess.pid!);
         
         // 모든 이벤트 리스너 제거

@@ -158,10 +158,27 @@ export const TimeSeriesChart: React.FC<ChartProps> = ({ data, title }) => {
    - Period-over-period comparison
 
 #### User Interface
-1. Clean, modern dashboard layout
-2. Dark mode support
-3. Loading states and error handling
-4. Mobile-responsive design
+1. **Modern Dashboard Layout**
+   - Use grid layout with gap-6 spacing
+   - Cards with rounded-xl corners and shadow-soft effect
+   - Consistent padding (p-6) inside cards
+   - Hover effects on interactive elements
+
+2. **Beautiful Chart Design**
+   - Use gradient fills for area charts
+   - Smooth animation transitions (1000ms duration)
+   - Custom tooltip with rounded corners and shadow
+   - Color palette: primary (#3b82f6), secondary (#10b981)
+
+3. **Loading States**
+   - Skeleton loaders with animate-pulse
+   - Consistent height matching final content
+   - Smooth fade-in when data loads
+
+4. **Responsive Design**
+   - Mobile-first approach
+   - Stack cards vertically on small screens
+   - Adjust chart heights for different viewports
 
 ### 3. SQL Query Examples
 Here are some example queries you can use as a starting point:
