@@ -53,6 +53,10 @@ docs/
 # Gemini settings (except templates)
 .gemini/
 
+# Assets - keep PNG files
+!assets/
+!assets/*.png
+
 # Test files
 test-*/
 tests/

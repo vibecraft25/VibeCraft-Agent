@@ -4,6 +4,9 @@ SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데�
 
 > 🎉 **90%+ 성공률**로 원샷 프롬프트만으로 즉시 실행 가능한 React 앱을 생성합니다!
 
+![KPI Dashboard Example](./assets/kpi-dashboard-preview.png)
+*실제 생성된 KPI 대시보드 예시*
+
 ## 🚀 주요 기능
 
 - **실전 검증된 시각화 타입**: time-series, geo-spatial, kpi-dashboard, comparison 등
@@ -24,7 +27,7 @@ SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데�
 
 ## 🔧 설치 및 실행
 
-### 방법 1: 프로젝트 Clone 후 바로 실행 (권장)
+### 설치 단계별 가이드
 
 ```bash
 # 1. 프로젝트 클론
@@ -35,33 +38,35 @@ cd vibecraft-agent
 npm install
 npm run build
 
-# 3. 환경 설정 (.env 파일 생성)
+# 3. 환경 설정 (필수!)
 cp .env.example .env
-# .env 파일을 열어서 GEMINI_API_KEY 설정
+# .env 파일을 열어서 GEMINI_API_KEY 입력
+# API Key 발급: https://makersuite.google.com/app/apikey
 
-# 4. 전역 설치 (선택사항 - 어디서든 vibecraft-agent 명령 사용)
-npm link
+# 4. Gemini CLI 설치 확인
+gemini --version
+# 없으면 설치 필요
 
-# 5. 바로 실행 (전역 설치 안 했을 경우)
+# 5. 테스트 실행
 npm run start -- \
-  --sqlite-path ./test-commands/sample-business.sqlite \
+  --sqlite-path ./samples/sample-business.sqlite \
   --visualization-type kpi-dashboard \
   --user-prompt "주요 비즈니스 메트릭 대시보드" \
   --output-dir ./output
+
+# 7. 생성된 앱 확인
+cd ./output/vibecraft-kpi-*
+npm install
+npm run dev
 ```
 
-### 방법 2: 전역 설치 후 사용
+### 전역 설치 (선택사항)
 
 ```bash
-# 1. VibeCraft-Agent 전역 설치
-git clone https://github.com/your-org/vibecraft-agent
-cd vibecraft-agent
-npm install
-npm run build
+# 전역 명령어로 사용하려면
 npm link
 
-# 2. 이제 어디서든 사용 가능
-cd ~/my-project
+# 이제 어디서든 사용 가능
 vibecraft-agent \
   --sqlite-path ./data.sqlite \
   --visualization-type time-series \
@@ -99,27 +104,14 @@ GEMINI_API_KEY=your-api-key-here
 Gemini CLI가 반드시 설치되어 있어야 합니다:
 
 ```bash
-# Gemini CLI 설치
-npm install -g @anthropic/gemini
-
-# 설치 확인
+# Gemini CLI 설치 확인
 gemini --version
+
+# 설치되어 있지 않다면 설치 필요
+# 설치 방법은 프로젝트별로 다를 수 있음
 ```
 
-⚠️ **주의**: Gemini CLI는 별도로 설치해야 합니다. 
-설치 방법: https://github.com/anthropics/gemini
-
-#### 4. MCP SQLite Server 설치 (선택사항)
-
-스키마 분석 기능 강화를 위해 권장:
-
-```bash
-# Python으로 설치
-pip install mcp-server-sqlite
-
-# 또는 UV로 설치
-uv pip install mcp-server-sqlite
-```
+⚠️ **주의**: Gemini CLI는 별도로 설치해야 하는 도구입니다.
 
 ## 🚀 빠른 시작
 
@@ -299,41 +291,46 @@ npm run dev
 
 ## 🐛 문제 해결
 
-### Gemini CLI를 찾을 수 없음
+### 1. GEMINI_API_KEY가 설정되지 않음
+```bash
+❌ Error: GEMINI_API_KEY is not set
+```
+**해결**: 
+```bash
+cp .env.example .env
+# .env 파일 편집하여 API Key 입력
+```
+
+### 2. Gemini CLI를 찾을 수 없음
 ```bash
 Error: Gemini CLI not found. Please install it first.
 ```
-**해결**: Gemini CLI가 설치되어 있고 PATH에 등록되어 있는지 확인
+**해결**: Gemini CLI 설치 필요
 
-### SQLite 파일 접근 오류
+### 3. 샘플 대시보드 실행 시 에러
 ```bash
-Error: Cannot access SQLite database
+Error: Cannot find module 'react'
 ```
 **해결**: 
-- 파일 경로가 올바른지 확인
-- 파일이 유효한 SQLite 데이터베이스인지 확인
-- 파일 읽기 권한이 있는지 확인
-
-### 생성된 앱 실행 시 에러
 ```bash
-Error: Cannot find module '@/components/...'
+# 각 샘플 폴더에서 개별 설치 필요
+cd samples/kpi-dashboard
+npm install
+npm run dev
 ```
-**해결**: 대부분 자체 검증으로 해결되지만, 발생 시:
-- `tsconfig.json`의 paths 설정 확인
-- `vite.config.ts`의 alias 설정 확인
 
-### 타임아웃 문제
-생성 중 5분 타임아웃이 발생해도 앱은 정상적으로 생성됩니다. 생성된 디렉토리에서:
+### 4. 타임아웃 문제
+생성 중 5분 타임아웃이 발생해도 앱은 정상적으로 생성됩니다:
 ```bash
+cd ./output/vibecraft-*
 npm run build  # 빌드 확인
 npm run dev    # 개발 서버 실행
 ```
 
 ## 📚 추가 문서
 
-- [설치 트러블슈팅](./SETUP.md)
 - [기여 가이드](./CONTRIBUTING.md)
-- [샘플 대시보드](./samples/README.md)
+- [샘플 대시보드 상세 가이드](./samples/README.md)
 
 ## 🤝 기여하기
 
