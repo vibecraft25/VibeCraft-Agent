@@ -56,19 +56,19 @@ export function validateOutputDir(dir: string): void {
       throw new Error(`Output path exists but is not a directory: ${resolvedDir}`);
     }
     
-    // 디렉토리가 비어있지 않은지 확인
-    const files = fs.readdirSync(resolvedDir);
-    // .DS_Store, .gitkeep 같은 시스템 파일은 무시
-    const significantFiles = files.filter(f => !f.startsWith('.'));
-    if (significantFiles.length > 0) {
-      throw new Error(`Output directory is not empty: ${resolvedDir}`);
+    // output 디렉토리가 존재해도 OK - 그 안에 새로운 프로젝트 폴더를 생성할 것임
+    // 쓰기 권한만 확인
+    try {
+      fs.accessSync(resolvedDir, fs.constants.W_OK);
+    } catch {
+      throw new Error(`No write permission for output directory: ${resolvedDir}`);
     }
-  }
-  
-  // 부모 디렉토리에 쓰기 권한이 있는지 확인
-  try {
-    fs.accessSync(parentDir, fs.constants.W_OK);
-  } catch {
-    throw new Error(`No write permission for parent directory: ${parentDir}`);
+  } else {
+    // 디렉토리가 없으면 부모 디렉토리에 쓰기 권한이 있는지 확인
+    try {
+      fs.accessSync(parentDir, fs.constants.W_OK);
+    } catch {
+      throw new Error(`No write permission for parent directory: ${parentDir}`);
+    }
   }
 }

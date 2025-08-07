@@ -51,18 +51,27 @@ export class RequestNormalizer {
   }
   
   private createWorkingDirectory(outputDir: string, projectName?: string): string {
-    const workingDir = projectName 
-      ? path.join(outputDir, projectName)
-      : outputDir;
+    // 항상 outputDir 안에 projectName 디렉토리를 생성
+    // projectName이 없으면 normalizeProjectName에서 자동 생성됨
+    const finalProjectName = projectName || `vibecraft-${Date.now()}`;
+    const workingDir = path.join(outputDir, finalProjectName);
+    
+    // 이미 존재하는 디렉토리인 경우 타임스탬프 추가
+    let finalWorkingDir = workingDir;
+    let counter = 1;
+    while (fs.existsSync(finalWorkingDir)) {
+      finalWorkingDir = `${workingDir}-${counter}`;
+      counter++;
+    }
     
     // 작업 디렉토리 생성
-    fs.ensureDirSync(workingDir);
+    fs.ensureDirSync(finalWorkingDir);
     
     // .gemini 디렉토리 생성 (settings.json을 위해)
-    const geminiDir = path.join(workingDir, '.gemini');
+    const geminiDir = path.join(finalWorkingDir, '.gemini');
     fs.ensureDirSync(geminiDir);
     
-    return workingDir;
+    return finalWorkingDir;
   }
   
   // 시각화 타입에 따른 기본 설정 추가
