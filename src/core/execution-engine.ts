@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs-extra';
 import { EventEmitter } from 'events';
+import { glob } from 'glob';
 
 const execAsync = promisify(exec);
 
@@ -114,51 +115,152 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
   
   private async verifyGeminiCLI(): Promise<void> {
     try {
-      // First, try to find gemini using 'which' command
+      const isWindows = process.platform === 'win32';
+      
+      // First, try to find gemini using system command
       try {
-        const { stdout: whichPath } = await execAsync('which gemini');
-        const geminiPath = whichPath.trim();
+        const findCommand = isWindows ? 'where gemini' : 'which gemini';
+        const { stdout: whichPath } = await execAsync(findCommand);
+        const geminiPath = whichPath.trim().split('\n')[0]; // Take first result on Windows
         if (geminiPath) {
-          const { stdout: version } = await execAsync(`${geminiPath} --version`);
+          const { stdout: version } = await execAsync(`"${geminiPath}" --version`);
           this.geminiPath = geminiPath;
           console.log(`Found Gemini CLI at: ${geminiPath}`);
           return;
         }
       } catch {
-        // If 'which' fails, try other methods
+        // If system command fails, try glob patterns
       }
 
-      // Fallback: Try common paths
-      const possiblePaths = [
-        'gemini',
-        '/usr/local/bin/gemini',
-        '/opt/homebrew/bin/gemini',  // macOS M1/M2
-        `${process.env.HOME}/.local/bin/gemini`,
-        `${process.env.HOME}/bin/gemini`,
-        // npm global paths
-        `${process.env.HOME}/.npm-global/bin/gemini`,
-        '/usr/bin/gemini'
-      ];
+      // Use glob patterns to find gemini executable
+      const globPatterns: string[] = [];
+      
+      if (isWindows) {
+        // Windows glob patterns with flexible depth
+        const userProfile = process.env.USERPROFILE || process.env.HOME;
+        if (userProfile) {
+          globPatterns.push(
+            // AppData - flexible patterns
+            `${userProfile}/AppData/**/gemini.{cmd,exe,bat}`,
+            `${userProfile}/AppData/**/gemini`,
+            
+            // User profile patterns
+            `${userProfile}/**/bin/gemini.{cmd,exe,bat}`,
+            `${userProfile}/.npm*/**/gemini.{cmd,exe,bat}`
+          );
+        }
+        
+        // Multiple users support
+        globPatterns.push(
+          'C:/Users/*/AppData/**/gemini.{cmd,exe,bat}',
+          'C:/Users/*/AppData/**/gemini',
+          
+          // Program Files - any variant, any depth
+          'C:/Program Files*/**/gemini.{cmd,exe,bat}',
+          'C:/Program Files*/**/gemini',
+          
+          // Common Node.js paths with wildcards
+          'C:/**/nodejs*/bin/gemini.{cmd,exe,bat}',
+          'C:/**/npm*/bin/gemini.{cmd,exe,bat}',
+          
+          // Chocolatey, Scoop, other package managers
+          'C:/ProgramData/chocolatey/**/gemini.{cmd,exe,bat}',
+          'C:/Users/*/scoop/**/gemini.{cmd,exe,bat}'
+        );
+      } else {
+        // Unix-like glob patterns with flexible wildcards
+        const home = process.env.HOME;
+        if (home) {
+          globPatterns.push(
+            // Home directory patterns with mixed wildcards
+            `${home}/.local/**/gemini`,
+            `${home}/bin/gemini`,
+            `${home}/.npm*/**/gemini`,
+            
+            // Version managers - any version
+            `${home}/.nvm/versions/node/*/bin/gemini`,
+            `${home}/.nvm/**/gemini`,
+            `${home}/.n/versions/node/*/bin/gemini`,
+            `${home}/.volta/bin/gemini`,
+            
+            // Package managers
+            `${home}/.yarn/*/gemini`,
+            `${home}/.pnpm/*/gemini`
+          );
+        }
+        
+        globPatterns.push(
+          // Standard locations
+          '/usr/local/bin/gemini',
+          '/usr/bin/gemini',
+          
+          // macOS specific
+          '/opt/homebrew/*/gemini',
+          '/opt/homebrew/**/bin/gemini',
+          
+          // Linux package managers
+          '/snap/*/current/**/gemini',
+          '/var/lib/flatpak/**/gemini',
+          
+          // Common installation paths with wildcards
+          '/opt/node*/bin/gemini',
+          '/usr/local/node*/bin/gemini',
+          '/usr/local/lib/node_modules/*/bin/gemini'
+        );
+      }
 
-      // Add npm global bin path if available
+      // Add npm global path pattern
       try {
         const { stdout: npmPrefix } = await execAsync('npm config get prefix');
-        const npmGlobalPath = `${npmPrefix.trim()}/bin/gemini`;
-        possiblePaths.unshift(npmGlobalPath);
+        const prefix = npmPrefix.trim();
+        if (isWindows) {
+          globPatterns.unshift(`${prefix}/gemini.{cmd,exe,bat}`);
+          globPatterns.unshift(`${prefix}/gemini`);
+        } else {
+          globPatterns.unshift(`${prefix}/bin/gemini`);
+        }
       } catch {
-        // npm config command failed, continue with other paths
+        // Continue without npm prefix
       }
       
-      for (const geminiPath of possiblePaths) {
+      // Search using glob patterns
+      for (const pattern of globPatterns) {
         try {
-          const { stdout } = await execAsync(`${geminiPath} --version`);
+          const matches = await glob(pattern, { 
+            windowsPathsNoEscape: true,
+            absolute: true 
+          });
+          
+          for (const matchPath of matches) {
+            try {
+              const command = matchPath.includes(' ') ? `"${matchPath}" --version` : `${matchPath} --version`;
+              const { stdout } = await execAsync(command);
+              if (stdout) {
+                this.geminiPath = matchPath;
+                console.log(`Found Gemini CLI at: ${matchPath}`);
+                return;
+              }
+            } catch {
+              // Try next match
+            }
+          }
+        } catch {
+          // Continue with next pattern
+        }
+      }
+      
+      // Fallback to direct command
+      const directCommands = ['gemini', 'gemini.cmd', 'gemini.exe'];
+      for (const cmd of directCommands) {
+        try {
+          const { stdout } = await execAsync(`${cmd} --version`);
           if (stdout) {
-            this.geminiPath = geminiPath;
-            console.log(`Found Gemini CLI at: ${geminiPath}`);
+            this.geminiPath = cmd;
+            console.log(`Found Gemini CLI as: ${cmd}`);
             return;
           }
         } catch {
-          // Try next path
+          // Try next command
         }
       }
       
