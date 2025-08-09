@@ -18,6 +18,9 @@ coverage/
 
 # OS
 .DS_Store
+
+# npm package files
+*.tgz
 Thumbs.db
 
 # Logs
