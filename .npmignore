@@ -1,38 +1,69 @@
-# Development files
+# Source files
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Configuration files
 .env
-.env.local
-.vscode/
-.idea/
+.env.*
+tsconfig.json
+jest.config.js
+.eslintrc.json
+.prettierrc
+nodemon.json
 
 # Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+__tests__/
 tests/
-jest.*.config.js
-test-*/
-*.test.ts
-*.spec.ts
+coverage/
+.nyc_output/
 
-# Source files (if publishing compiled version)
-# src/
-
-# Documentation source
-docs/
+# Development files
+.vscode/
+.idea/
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Git files
 .git/
 .gitignore
+.github/
+
+# Documentation (keep only README)
+docs/
+*.md
+!README.md
 
 # Build tools
-.eslintrc*
-.prettierrc*
-tsconfig.json
+node_modules/
+.npm/
+.yarn/
 
-# Samples (optional - include if you want)
-# samples/
+# Examples and samples
+examples/
+samples/
+test-data/
+sales-data.sqlite
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+azure-pipelines.yml
 
 # Temporary files
-*.log
-*.tmp
-temp/
 tmp/
+temp/
+*.tmp
 output/
 generated/
+
+# Task master files
+.taskmaster/
+CLAUDE.md
