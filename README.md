@@ -27,7 +27,30 @@ SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데�
 
 ## 🔧 설치 및 실행
 
-### 설치 단계별 가이드
+### npm으로 설치 (권장)
+
+```bash
+# 1. VibeCraft-Agent 설치
+npm install -g vibecraft-agent
+
+# 2. Gemini CLI 설치 (필수!)
+# Gemini CLI 설치 방법은 공식 문서 참조
+# https://github.com/[gemini-cli-repo]
+
+# 3. 환경 변수 설정
+export GEMINI_API_KEY=YOUR_API_KEY
+# 또는 .env 파일 생성
+echo "GEMINI_API_KEY=YOUR_API_KEY" > .env
+
+# 4. 사용
+vibecraft-agent \
+  --sqlite-path ./data.sqlite \
+  --visualization-type time-series \
+  --user-prompt "월별 매출 추이" \
+  --output-dir ./dashboard
+```
+
+### 소스에서 설치
 
 ```bash
 # 1. 프로젝트 클론
@@ -38,35 +61,17 @@ cd vibecraft-agent
 npm install
 npm run build
 
-# 3. 환경 설정 (필수!)
+# 3. 환경 설정
 cp .env.example .env
 # .env 파일을 열어서 GEMINI_API_KEY 입력
-# API Key 발급: https://makersuite.google.com/app/apikey
 
-# 4. Gemini CLI 설치 확인
-gemini --version
-# 없으면 설치 필요
+# 4. Gemini CLI 설치 (필수!)
+# 설치 방법은 공식 문서 참조
 
-# 5. 테스트 실행
-npm run start -- \
-  --sqlite-path ./samples/sample-business.sqlite \
-  --visualization-type kpi-dashboard \
-  --user-prompt "주요 비즈니스 메트릭 대시보드" \
-  --output-dir ./output
-
-# 7. 생성된 앱 확인
-cd ./output/vibecraft-kpi-*
-npm install
-npm run dev
-```
-
-### 전역 설치 (선택사항)
-
-```bash
-# 전역 명령어로 사용하려면
+# 5. 전역 설치
 npm link
 
-# 이제 어디서든 사용 가능
+# 6. 사용
 vibecraft-agent \
   --sqlite-path ./data.sqlite \
   --visualization-type time-series \
@@ -101,17 +106,19 @@ GEMINI_API_KEY=your-api-key-here
 
 #### 3. Gemini CLI 설치 (필수)
 
-Gemini CLI가 반드시 설치되어 있어야 합니다:
+⚠️ **중요**: VibeCraft-Agent는 Gemini CLI를 사용하여 코드를 생성합니다. 
+Gemini CLI는 별도로 설치해야 합니다:
 
 ```bash
 # Gemini CLI 설치 확인
 gemini --version
 
-# 설치되어 있지 않다면 설치 필요
-# 설치 방법은 프로젝트별로 다를 수 있음
+# 설치되어 있지 않다면 반드시 설치 필요
+# Gemini CLI 공식 저장소에서 설치 방법 확인
 ```
 
-⚠️ **주의**: Gemini CLI는 별도로 설치해야 하는 도구입니다.
+**참고**: `npm install -g vibecraft-agent`를 실행해도 Gemini CLI는 자동으로 설치되지 않습니다.
+Gemini CLI는 독립적인 도구이므로 별도 설치가 필요합니다.
 
 ## 🚀 빠른 시작
 
