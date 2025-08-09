@@ -37,10 +37,24 @@ program
   .requiredOption('--user-prompt <prompt>', 'User\'s visualization request')
   .option('--output-dir <dir>', 'Output directory for generated app', './output')
   .option('--project-name <name>', 'Name of the project')
+  .option('--model <model>', 'Gemini model: flash (default) or pro', (value) => {
+    const valid = ['flash', 'pro'];
+    if (!valid.includes(value)) {
+      console.error(chalk.red(`❌ Invalid model: ${value}. Use 'flash' or 'pro'`));
+      process.exit(1);
+    }
+    return value;
+  }, 'flash')
   .option('--debug', 'Enable debug mode', false)
   .action(async (options) => {
     try {
       console.log(chalk.blue('🚀 VibeCraft-Agent starting...'));
+      
+      // Validate GEMINI_MODEL environment variable if set
+      if (process.env.GEMINI_MODEL && !['flash', 'pro'].includes(process.env.GEMINI_MODEL)) {
+        console.warn(chalk.yellow(`⚠️ Invalid GEMINI_MODEL: ${process.env.GEMINI_MODEL}`));
+        console.warn(chalk.yellow('   Using default: flash'));
+      }
       
       // Check for API key from environment variable
       if (!process.env.GEMINI_API_KEY) {
@@ -59,6 +73,7 @@ program
         userPrompt: options.userPrompt,
         outputDir: options.outputDir,
         projectName: options.projectName,
+        model: options.model,
         debug: options.debug
       };
       
