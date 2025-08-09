@@ -142,11 +142,11 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
 
       // Add npm global bin path if available
       try {
-        const { stdout: npmBin } = await execAsync('npm bin -g');
-        const npmGlobalPath = `${npmBin.trim()}/gemini`;
+        const { stdout: npmPrefix } = await execAsync('npm config get prefix');
+        const npmGlobalPath = `${npmPrefix.trim()}/bin/gemini`;
         possiblePaths.unshift(npmGlobalPath);
       } catch {
-        // npm bin command failed, continue with other paths
+        // npm config command failed, continue with other paths
       }
       
       for (const geminiPath of possiblePaths) {

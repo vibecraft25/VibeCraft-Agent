@@ -35,7 +35,7 @@ npm install -g vibecraft-agent
 
 # 2. Gemini CLI 설치 (필수!)
 # Gemini CLI 설치 방법은 공식 문서 참조
-# https://github.com/[gemini-cli-repo]
+# https://github.com/google-gemini/gemini-cli
 
 # 3. 환경 변수 설정
 export GEMINI_API_KEY=YOUR_API_KEY
