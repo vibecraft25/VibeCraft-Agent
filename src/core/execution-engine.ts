@@ -114,19 +114,47 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
   
   private async verifyGeminiCLI(): Promise<void> {
     try {
-      // Try to find gemini in common locations
+      // First, try to find gemini using 'which' command
+      try {
+        const { stdout: whichPath } = await execAsync('which gemini');
+        const geminiPath = whichPath.trim();
+        if (geminiPath) {
+          const { stdout: version } = await execAsync(`${geminiPath} --version`);
+          this.geminiPath = geminiPath;
+          console.log(`Found Gemini CLI at: ${geminiPath}`);
+          return;
+        }
+      } catch {
+        // If 'which' fails, try other methods
+      }
+
+      // Fallback: Try common paths
       const possiblePaths = [
         'gemini',
         '/usr/local/bin/gemini',
+        '/opt/homebrew/bin/gemini',  // macOS M1/M2
         `${process.env.HOME}/.local/bin/gemini`,
-        '/Users/infograb/.nvm/versions/node/v22.16.0/bin/gemini'
+        `${process.env.HOME}/bin/gemini`,
+        // npm global paths
+        `${process.env.HOME}/.npm-global/bin/gemini`,
+        '/usr/bin/gemini'
       ];
+
+      // Add npm global bin path if available
+      try {
+        const { stdout: npmBin } = await execAsync('npm bin -g');
+        const npmGlobalPath = `${npmBin.trim()}/gemini`;
+        possiblePaths.unshift(npmGlobalPath);
+      } catch {
+        // npm bin command failed, continue with other paths
+      }
       
       for (const geminiPath of possiblePaths) {
         try {
           const { stdout } = await execAsync(`${geminiPath} --version`);
-          if (stdout.includes('0.1.9')) {
+          if (stdout) {
             this.geminiPath = geminiPath;
+            console.log(`Found Gemini CLI at: ${geminiPath}`);
             return;
           }
         } catch {
@@ -134,9 +162,13 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         }
       }
       
-      throw new Error('Gemini CLI not found in PATH or common locations');
+      throw new Error('Gemini CLI not found. Please ensure it is installed and accessible in PATH.');
     } catch (error) {
-      throw new Error('Gemini CLI not found. Please install it first.');
+      throw new Error(
+        'Gemini CLI not found. Please install it first.\n' +
+        'Installation guide: https://github.com/[gemini-cli-repo]\n' +
+        'After installation, make sure "gemini" command works in your terminal.'
+      );
     }
   }
   
@@ -199,7 +231,8 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       const geminiProcess = spawn(this.geminiPath, args, {
         cwd: config.workspaceDir,
         env,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true  // Use shell to ensure PATH is properly resolved
       });
       
       // 프로세스 등록
