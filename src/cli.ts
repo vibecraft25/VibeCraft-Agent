@@ -42,13 +42,13 @@ program
     try {
       console.log(chalk.blue('🚀 VibeCraft-Agent starting...'));
       
-      // Check for API key
+      // Check for API key from environment variable
       if (!process.env.GEMINI_API_KEY) {
         console.error(chalk.red('❌ Error: GEMINI_API_KEY is not set'));
-        console.log(chalk.yellow('\nPlease set your Gemini API key:'));
-        console.log(chalk.gray('1. Copy .env.example to .env'));
-        console.log(chalk.gray('2. Add your API key to .env'));
-        console.log(chalk.gray('3. Get your key from: https://makersuite.google.com/app/apikey'));
+        console.log(chalk.yellow('\nYou can provide the API key in two ways:'));
+        console.log(chalk.gray('1. Environment variable: export GEMINI_API_KEY=YOUR_API_KEY'));
+        console.log(chalk.gray('2. .env file: GEMINI_API_KEY=YOUR_API_KEY'));
+        console.log(chalk.gray('\nGet your key from: https://makersuite.google.com/app/apikey'));
         process.exit(1);
       }
       
