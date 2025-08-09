@@ -10,6 +10,7 @@ export interface AgentCliArgs {
   userPrompt: string;
   outputDir: string;
   projectName?: string;
+  model?: 'flash' | 'pro';
   debug?: boolean;
 }
 

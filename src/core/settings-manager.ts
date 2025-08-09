@@ -18,6 +18,7 @@ export interface SettingsConfig {
   workspaceDir: string;
   sqlitePath: string;
   mcpServerPath?: string;
+  model?: 'flash' | 'pro';
   timeout?: number;
   trust?: boolean;
 }
@@ -29,6 +30,11 @@ export interface Settings {
   mcpServers: {
     [key: string]: MCPServerConfig;
   };
+  models?: Array<{
+    provider: string;
+    model: string;
+    apiKey?: string;
+  }>;
   experimental?: {
     [key: string]: any;
   };
@@ -102,6 +108,14 @@ export class SettingsManager implements ISettingsManager {
       }
     };
     
+    // Add model configuration
+    const selectedModel = this.getSelectedModel(config.model);
+    settings.models = [{
+      provider: 'google',
+      model: selectedModel,
+      apiKey: process.env.GEMINI_API_KEY
+    }];
+    
     // Add experimental features if enabled
     if (process.env.GEMINI_EXPERIMENTAL_FEATURES) {
       settings.experimental = {
@@ -111,6 +125,32 @@ export class SettingsManager implements ISettingsManager {
     }
     
     return settings;
+  }
+  
+  /**
+   * Get selected Gemini model based on user choice
+   */
+  private getSelectedModel(cliModel?: 'flash' | 'pro'): string {
+    // Priority: CLI > ENV > DEFAULT
+    const envModel = process.env.GEMINI_MODEL;
+    const modelChoice = cliModel || (envModel === 'pro' ? 'pro' : envModel === 'flash' ? 'flash' : 'flash');
+    
+    const modelMap = {
+      'flash': 'gemini-2.5-flash',
+      'pro': 'gemini-2.5-pro'
+    };
+    
+    const selectedModel = modelMap[modelChoice] || modelMap['flash'];
+    
+    // Log model selection
+    console.log(`📊 Using model: ${selectedModel}`);
+    if (selectedModel.includes('flash')) {
+      console.log('   (Optimized for free tier - 100 req/min)');
+    } else {
+      console.log('   (Premium quality - 5 req/min)');
+    }
+    
+    return selectedModel;
   }
   
   /**

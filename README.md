@@ -25,6 +25,17 @@ SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데�
 - **Tailwind CSS**: 스타일링
 - **sql.js**: 브라우저에서 SQLite 실행
 
+## 📦 NPM 패키지
+
+[![npm version](https://img.shields.io/npm/v/vibecraft-agent.svg)](https://www.npmjs.com/package/vibecraft-agent)
+[![npm downloads](https://img.shields.io/npm/dm/vibecraft-agent.svg)](https://www.npmjs.com/package/vibecraft-agent)
+
+```bash
+npm install -g vibecraft-agent
+```
+
+NPM 패키지 페이지: https://www.npmjs.com/package/vibecraft-agent
+
 ## 🔧 설치 및 실행
 
 ### npm으로 설치 (권장)
@@ -160,6 +171,7 @@ vibecraft-agent \
 | `--user-prompt` | 시각화 요구사항 설명 | ✅ | - |
 | `--output-dir` | 생성될 React 앱 디렉토리 | ❌ | ./output |
 | `--project-name` | 프로젝트 이름 | ❌ | 자동 생성 |
+| `--model` | Gemini 모델 선택 (flash/pro) | ❌ | flash |
 | `--debug` | 디버그 모드 활성화 | ❌ | false |
 
 ### 지원하는 시각화 타입
@@ -175,6 +187,34 @@ vibecraft-agent --list-types
 | `geo-spatial` | 지도 시각화 | 위치 기반 데이터, 지역별 통계 |
 | `kpi-dashboard` | KPI 대시보드 | 핵심 지표, 메트릭 카드 |
 | `comparison` | 비교 분석 | 카테고리별 비교, A/B 분석 |
+
+## 🆕 모델 선택 (무료 사용자 지원)
+
+### Gemini 모델 옵션
+- **flash** (기본값): gemini-2.5-flash - 무료 사용자 추천 (100 req/min)
+- **pro**: gemini-2.5-pro - 고품질 코드 생성 (5 req/min)
+
+```bash
+# 무료 사용자 (기본값)
+vibecraft-agent \
+  --sqlite-path ./data.sqlite \
+  --visualization-type kpi-dashboard \
+  --user-prompt "매출 대시보드"
+  # --model 옵션 생략 시 flash 자동 선택
+
+# 고품질 코드 필요 시
+vibecraft-agent \
+  --sqlite-path ./data.sqlite \
+  --visualization-type kpi-dashboard \
+  --user-prompt "복잡한 대시보드" \
+  --model pro
+```
+
+### 환경 변수로 기본 모델 설정
+```bash
+# .env 파일
+GEMINI_MODEL=flash  # 또는 pro
+```
 
 ## 📊 실제 사용 예시
 

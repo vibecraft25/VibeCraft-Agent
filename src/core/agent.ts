@@ -148,11 +148,12 @@ export class VibeCraftAgent {
         // 6. Create settings for Gemini CLI
         this.log('info', 'Creating Gemini CLI settings...');
         
-        // Generate settings.json with original SQLite path
+        // Generate settings.json with original SQLite path and model selection
         const settingsPath = await this.settingsManager.generateSettings({
           workspaceDir: normalizedRequest.workingDir,
           sqlitePath: normalizedRequest.sqlitePath,  // Use original path for now
           mcpServerPath: EnvironmentManager.getMCPServerPath(),
+          model: normalizedRequest.model,  // Pass model selection
           timeout: EnvironmentManager.getTimeout(),
           trust: true
         });
@@ -187,7 +188,8 @@ export class VibeCraftAgent {
           projectContext: {
             projectName: normalizedRequest.projectName || 'vibecraft-app',
             outputDir: normalizedRequest.workingDir,
-            visualizationType: normalizedRequest.visualizationType
+            visualizationType: normalizedRequest.visualizationType,
+            model: normalizedRequest.model
           }
         };
         

@@ -28,6 +28,7 @@ export interface ProjectContext {
   projectName: string;
   outputDir: string;
   visualizationType?: string;
+  model?: 'flash' | 'pro';
   additionalRequirements?: string[];
   constraints?: string[];
 }
