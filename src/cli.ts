@@ -73,7 +73,7 @@ program
         console.log(chalk.yellow('\nNext steps:'));
         console.log(chalk.yellow(`  cd ${result.outputPath}`));
         console.log(chalk.yellow('  npm install'));
-        console.log(chalk.yellow('  npm start'));
+        console.log(chalk.yellow('  npm run dev'));
         process.exit(0);  // 성공 시 정상 종료
       } else {
         console.error(chalk.red(`❌ Generation failed: ${result.error?.message || 'Unknown error'}`));
