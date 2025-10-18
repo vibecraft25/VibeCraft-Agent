@@ -45,7 +45,49 @@ Example workflow:
 - ALWAYS use path aliases: import from '@/components/...' not '../components/...'
 - ALWAYS export your components properly
 - First create the 'public' directory, then copy the SQLite file to 'public/data.sqlite'
-- The SQLite file will be at 'public/data.sqlite' for the app to access
 - Create all necessary files including package.json, vite.config.ts, tsconfig.json, etc.
 - In tsconfig.json, only include 'src' folder, NOT 'vite.config.ts'
 - Configure Tailwind with extended theme for better visual design
+
+## CRITICAL: sql.js Setup Pattern
+
+**ALWAYS use this exact pattern for sql.js:**
+
+```typescript
+import initSqlJs, { Database } from 'sql.js';
+
+// Initialize sql.js with CDN wasm file
+const SQL = await initSqlJs({
+  locateFile: (file) => `https://sql.js.org/dist/${file}`
+});
+
+// Load SQLite database from Vite public folder
+// Vite serves public/ as root, so use /data.sqlite NOT /public/data.sqlite
+const response = await fetch('/data.sqlite');
+const arrayBuffer = await response.arrayBuffer();
+const db = new SQL.Database(new Uint8Array(arrayBuffer));
+```
+
+**Common mistakes to AVOID:**
+- ❌ `locateFile: () => '/sql-wasm.wasm'` (file doesn't exist)
+- ❌ `fetch('/public/data.sqlite')` (wrong path - Vite serves public as root)
+- ✅ Use CDN: `https://sql.js.org/dist/${file}`
+- ✅ Use root path: `/data.sqlite`
+
+## JSX Special Characters
+
+**ALWAYS escape special characters in JSX text:**
+
+```typescript
+// ❌ WRONG - will cause syntax error
+<span>Value > 100</span>
+<span>Price < 50</span>
+
+// ✅ CORRECT - escape with curly braces
+<span>Value {'>'} 100</span>
+<span>Price {'<'} 50</span>
+
+// ✅ ALTERNATIVE - use HTML entities
+<span>Value &gt; 100</span>
+<span>Price &lt; 50</span>
+```

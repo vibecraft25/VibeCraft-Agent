@@ -92,7 +92,11 @@ export class RequestParser implements IRequestParser {
   }
   
   private generateProjectName(visualizationType: string): string {
-    const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const now = new Date();
+    const date = now.toISOString().split('T')[0].replace(/-/g, '');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timestamp = `${date}-${hours}${minutes}`;
     return `vibecraft-${visualizationType}-${timestamp}`;
   }
   

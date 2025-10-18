@@ -8,15 +8,6 @@
 ## User Requirements
 {{USER_PROMPT}}
 
-## Database Schema
-You have access to a SQLite database with the following structure:
-
-{{SCHEMA_DETAILS}}
-
-### Database Summary
-- Total Tables: {{TABLE_COUNT}}
-- Total Records: {{TOTAL_ROWS}}
-
 ## Implementation Requirements
 
 ### 1. Technology Stack (USE EXACT VERSIONS)
