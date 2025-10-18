@@ -189,7 +189,8 @@ export class VibeCraftAgent {
             projectName: normalizedRequest.projectName || 'vibecraft-app',
             outputDir: normalizedRequest.workingDir,
             visualizationType: normalizedRequest.visualizationType,
-            model: normalizedRequest.model
+            model: normalizedRequest.model,
+            sqlitePath: normalizedRequest.sqlitePath
           }
         };
         
@@ -228,7 +229,9 @@ export class VibeCraftAgent {
           workspaceDir: normalizedRequest.workingDir,
           prompt: finalPrompt,  // 파일 경로가 아닌 프롬프트 내용
           settingsDir: path.dirname(settingsPath),
-          model: 'gemini-2.5-pro',  // 또는 사용자가 지정한 모델
+          model: normalizedRequest.model === 'flash'
+            ? 'gemini-2.5-flash'
+            : 'gemini-2.5-pro',
           timeout: 300000,  // 5분 타임아웃 (npm install 시간 고려)
           debug: normalizedRequest.debug || true,  // 디버그 모드 강제 활성화
           autoApprove: true,  // 자동화를 위해 필수

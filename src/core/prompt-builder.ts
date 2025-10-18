@@ -29,6 +29,7 @@ export interface ProjectContext {
   outputDir: string;
   visualizationType?: string;
   model?: 'flash' | 'pro';
+  sqlitePath: string;
   additionalRequirements?: string[];
   constraints?: string[];
 }
@@ -70,9 +71,9 @@ Create a complete, working React application that visualizes data from the provi
 
   buildPrompt(components: PromptComponents): string {
     const { schemaInfo, templateContent, userPrompt, projectContext } = components;
-    
+
     // Get SQLite path from context
-    const sqlitePath = (projectContext as any)?.sqlitePath || '/path/to/data.sqlite';
+    const sqlitePath = projectContext?.sqlitePath || '/path/to/data.sqlite';
     
     // Build concise prompt
     let prompt = `${this.SYSTEM_PROMPT_TEMPLATE}
