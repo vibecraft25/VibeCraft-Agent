@@ -4,7 +4,7 @@ VibeCraft-Agent의 다양한 시각화 타입을 테스트하기 위한 샘플 S
 
 ## 생성된 데이터베이스
 
-### 1. timeseries.sqlite (11.18 MB)
+### 1. sales.sqlite (11.18 MB)
 **테이블:** `sensor_readings`
 **레코드 수:** 100,000개
 **기간:** 2024-10-18 ~ 2025-09-30 (약 1년)
@@ -27,14 +27,14 @@ VibeCraft-Agent의 다양한 시각화 타입을 테스트하기 위한 샘플 S
 **시각화 예시:**
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/timeseries.sqlite \
+  --sqlite-path demo/sales.sqlite \
   --visualization-type time-series \
   --user-prompt "센서별 온도 및 습도 변화 추이를 시계열로 표시"
 ```
 
 ---
 
-### 2. geospatial.sqlite (12.97 MB)
+### 2. stores.sqlite (12.97 MB)
 **테이블:** `stores`
 **레코드 수:** 80,000개
 **도시:** 18개 주요 도시
@@ -62,14 +62,14 @@ vibecraft-agent \
 **시각화 예시:**
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/geospatial.sqlite \
+  --sqlite-path demo/stores.sqlite \
   --visualization-type geo-spatial \
   --user-prompt "전국 매장 위치를 지도에 표시하고 매출액별로 색상 구분"
 ```
 
 ---
 
-### 3. kpi.sqlite (14.72 MB)
+### 3. metrics.sqlite (14.72 MB)
 **테이블:** `transactions`
 **레코드 수:** 100,000개
 **기간:** 2020-10-19 ~ 2032-04-13 (약 5년)
@@ -105,9 +105,37 @@ vibecraft-agent \
 **시각화 예시:**
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/kpi.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type kpi-dashboard \
   --user-prompt "월별 매출, 이익, 고객 만족도 등 핵심 지표를 대시보드로 표시"
+```
+
+---
+
+### 4. metrics.sqlite - Comparison (비교 분석)
+
+**동일한 데이터베이스를 Comparison 시각화에도 활용**
+
+metrics.sqlite의 transactions 테이블은 다양한 카테고리를 포함하고 있어 비교 분석에 최적화되어 있습니다:
+
+**비교 가능한 차원:**
+- `category` (TEXT): 10개 제품 카테고리 (완구, 스포츠용품, 전자제품, 화장품, 의류 등)
+- `channel` (TEXT): 5개 판매 채널 (온라인, 오프라인, 모바일앱, 전화주문, 도매)
+- `region` (TEXT): 16개 지역 (서울, 부산, 대구 등)
+- `customer_segment` (TEXT): 5개 고객 세그먼트 (VIP, 일반, 신규, 휴면복귀, 단골)
+
+**비교 가능한 지표:**
+- `total_revenue` (REAL): 총 매출
+- `profit` (REAL): 이익
+- `quantity_sold` (INTEGER): 판매 수량
+- `customer_satisfaction` (REAL): 고객 만족도
+
+**시각화 예시:**
+```bash
+vibecraft-agent \
+  --sqlite-path demo/metrics.sqlite \
+  --visualization-type comparison \
+  --user-prompt "제품 카테고리별 매출을 막대 차트로, 판매 채널별 비중을 파이 차트로 나란히 표시"
 ```
 
 ---
@@ -163,9 +191,9 @@ python3 demo/csv_to_sqlite.py
 
 | 파일명 | 타입 | 크기 | 레코드 수 |
 |--------|------|------|-----------|
-| timeseries.sqlite | SQLite | 11.18 MB | 100,000 |
-| geospatial.sqlite | SQLite | 12.97 MB | 80,000 |
-| kpi.sqlite | SQLite | 14.72 MB | 100,000 |
+| sales.sqlite | SQLite | 11.18 MB | 100,000 |
+| stores.sqlite | SQLite | 12.97 MB | 80,000 |
+| metrics.sqlite | SQLite | 14.72 MB | 100,000 |
 | timeseries_data.csv | CSV | 10 MB | 100,000 |
 | geospatial_data.csv | CSV | 12 MB | 80,000 |
 | kpi_data.csv | CSV | 17 MB | 100,000 |

@@ -152,17 +152,17 @@ def main():
     conversions = [
         {
             "csv": demo_dir / "timeseries_data.csv",
-            "sqlite": demo_dir / "timeseries.sqlite",
+            "sqlite": demo_dir / "sales.sqlite",
             "table": "sensor_readings"
         },
         {
             "csv": demo_dir / "geospatial_data.csv",
-            "sqlite": demo_dir / "geospatial.sqlite",
+            "sqlite": demo_dir / "stores.sqlite",
             "table": "stores"
         },
         {
             "csv": demo_dir / "kpi_data.csv",
-            "sqlite": demo_dir / "kpi.sqlite",
+            "sqlite": demo_dir / "metrics.sqlite",
             "table": "transactions"
         }
     ]

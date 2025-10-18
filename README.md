@@ -148,13 +148,13 @@ python3 demo/csv_to_sqlite.py
 ```bash
 # KPI 대시보드 생성
 vibecraft-agent \
-  --sqlite-path demo/kpi.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type kpi-dashboard \
-  --user-prompt "월별 매출, 이익률, 고객 만족도를 대시보드로 표시" \
+  --user-prompt "핵심 지표 카드" \
   --output-dir ./output
 
 # 생성된 앱 실행
-cd ./output/vibecraft-kpi-*
+cd ./output/vibecraft-*
 npm install
 npm run dev
 ```
@@ -233,40 +233,40 @@ GEMINI_MODEL=flash  # 또는 pro
 
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/timeseries.sqlite \
+  --sqlite-path demo/sales.sqlite \
   --visualization-type time-series \
-  --user-prompt "센서별 온도와 습도 변화를 라인 차트로 표시하고, 위치별로 필터링할 수 있게 해주세요" \
-  --output-dir ./sensor-dashboard
+  --user-prompt "일별 매출 트렌드" \
+  --output-dir ./output
 ```
 
 ### 2. KPI 대시보드 (비즈니스 메트릭)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/kpi.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type kpi-dashboard \
-  --user-prompt "총 매출, 평균 거래액, 채널별 매출 비중, 월별 이익 추이를 카드와 차트로 표시" \
-  --output-dir ./business-kpi
+  --user-prompt "핵심 지표 카드" \
+  --output-dir ./output
 ```
 
 ### 3. 지리공간 시각화 (매장 위치)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/geospatial.sqlite \
+  --sqlite-path demo/stores.sqlite \
   --visualization-type geo-spatial \
-  --user-prompt "전국 매장 위치를 지도에 표시하고, 월 매출액에 따라 마커 색상과 크기를 다르게 표시" \
-  --output-dir ./store-map
+  --user-prompt "매장 위치와 매출" \
+  --output-dir ./output
 ```
 
 ### 4. 비교 분석 (제품/채널)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path demo/kpi.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type comparison \
   --user-prompt "제품 카테고리별 매출을 막대 차트로, 판매 채널별 비중을 파이 차트로 나란히 표시" \
-  --output-dir ./sales-comparison
+  --output-dir ./output
 ```
 
 ## 🔍 생성된 앱 실행하기
@@ -287,19 +287,6 @@ vibecraft-agent \
    ```
 
 4. 브라우저에서 http://localhost:5173 접속
-
-
-## ⚡ 성능 및 특징
-
-### 프롬프트 최적화
-- **"Less is More" 원칙**: 단순하고 명확한 프롬프트로 90%+ 성공률
-- **자체 검증**: 생성 중 발생한 TypeScript 에러 자동 수정
-- **빠른 생성**: 2-3분 내에 완전한 React 앱 생성
-
-### 스마트 기능
-- **컬럼 자동 매핑**: 날짜, 금액, 지역 등 자동 인식
-- **한국어 지역명 → 좌표 변환**: geo-spatial에서 자동 처리
-- **반응형 디자인**: 모바일부터 데스크톱까지 자동 대응
 
 ## ⚙️ 환경 설정
 
@@ -345,9 +332,9 @@ python3 demo/generate_kpi_data.py          # 비즈니스 거래 데이터 (100,
 python3 demo/csv_to_sqlite.py
 
 # 생성된 데이터베이스:
-# - demo/timeseries.sqlite (11.18 MB)
-# - demo/geospatial.sqlite (12.97 MB)
-# - demo/kpi.sqlite (14.72 MB)
+# - demo/sales.sqlite (11.18 MB) - Time-series 시각화용
+# - demo/stores.sqlite (12.97 MB) - Geo-spatial 시각화용
+# - demo/metrics.sqlite (14.72 MB) - KPI Dashboard용
 ```
 
 자세한 스키마 정보와 데이터 구조는 [demo/DATA_INFO.md](./demo/DATA_INFO.md) 참조
@@ -357,46 +344,47 @@ python3 demo/csv_to_sqlite.py
 생성된 데이터베이스로 각 시각화 타입 테스트:
 
 ```bash
-# 1. Time-series 시각화 (센서 데이터)
+# 1. Time-series 시각화 (일별 매출 트렌드)
 vibecraft-agent \
-  --sqlite-path demo/timeseries.sqlite \
+  --sqlite-path demo/sales.sqlite \
   --visualization-type time-series \
-  --user-prompt "센서별 온도와 습도 변화를 시계열로 표시" \
-  --output-dir ./output/timeseries-demo
+  --user-prompt "일별 매출 트렌드" \
+  --output-dir ./output
 
-# 2. Geo-spatial 시각화 (매장 위치)
+# 2. Geo-spatial 시각화 (매장 위치와 매출)
 vibecraft-agent \
-  --sqlite-path demo/geospatial.sqlite \
+  --sqlite-path demo/stores.sqlite \
   --visualization-type geo-spatial \
-  --user-prompt "전국 매장 위치를 지도에 표시하고 매출액별로 마커 크기 조정" \
-  --output-dir ./output/geospatial-demo
+  --user-prompt "매장 위치와 매출" \
+  --output-dir ./output
 
-# 3. KPI Dashboard (비즈니스 메트릭)
+# 3. KPI Dashboard (핵심 지표 카드)
 vibecraft-agent \
-  --sqlite-path demo/kpi.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type kpi-dashboard \
-  --user-prompt "월별 매출, 이익, 고객 만족도를 카드와 차트로 표시" \
-  --output-dir ./output/kpi-demo
+  --user-prompt "핵심 지표 카드" \
+  --output-dir ./output
 
-# 4. 기존 샘플 데이터베이스 사용
+# 4. Comparison (비교 분석)
 vibecraft-agent \
-  --sqlite-path demo/sample-business.sqlite \
+  --sqlite-path demo/metrics.sqlite \
   --visualization-type comparison \
-  --user-prompt "제품별, 지역별 매출 비교 분석" \
-  --output-dir ./output/comparison-demo
+  --user-prompt "제품 카테고리별 매출을 막대 차트로, 판매 채널별 비중을 파이 차트로 나란히 표시" \
+  --output-dir ./output
 ```
 
-### 생성된 앱 실행:
+### 생성된 앱 실행
+
 ```bash
-cd ./output/timeseries-demo
+# 생성된 프로젝트로 이동 (자동 생성된 폴더명)
+cd ./output/vibecraft-*
+
+# 의존성 설치 및 실행
 npm install
 npm run dev
 ```
 
-### 포함된 샘플 대시보드:
-- **time-series-dashboard**: 시계열 매출 분석 대시보드
-- **kpi-dashboard**: 핵심 비즈니스 메트릭 대시보드
-- **geo-spatial-dashboard**: 지역별 매출 지도 시각화
+브라우저에서 http://localhost:5173 접속
 
 ## 🐛 문제 해결
 
