@@ -181,7 +181,6 @@ export class VibeCraftAgent {
         
         // Build prompt components
         const promptComponents = {
-          systemPrompt: this.promptBuilder.getSystemPrompt(),
           templateContent: renderedPrompt,
           userPrompt: normalizedRequest.userPrompt,
           schemaInfo,

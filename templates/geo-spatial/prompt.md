@@ -40,8 +40,78 @@ Create a beautiful, modern interactive map visualization showing geographic data
 4. Center and fit bounds automatically based on data points
 5. Add smooth transitions for all map interactions
 
-### IMPORTANT:
-- Keep it performant - use marker clustering for large datasets
+### IMPORTANT - Performance Optimization:
+
+**Critical**: Always use LIMIT in SQL queries to prevent loading excessive data
+
+#### Default Query Pattern:
+```typescript
+// ❌ BAD: Loads all data
+const res = db.exec("SELECT * FROM stores");
+
+// ✅ GOOD: Limited data
+const [limit, setLimit] = useState(500);
+const res = db.exec(`SELECT * FROM stores ORDER BY monthly_revenue DESC LIMIT ${limit}`);
+```
+
+#### Required Filter Controls:
+Add these controls above the map:
+
+```typescript
+const GeoMapWithControls = () => {
+  const [limit, setLimit] = useState(500);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Get total count
+  useEffect(() => {
+    if (db) {
+      const countRes = db.exec("SELECT COUNT(*) FROM stores");
+      setTotalCount(countRes[0].values[0][0]);
+    }
+  }, [db]);
+
+  return (
+    <>
+      {/* Filter Controls */}
+      <div className="bg-white p-4 rounded-lg shadow mb-4 flex gap-4 items-center">
+        <label className="text-sm font-medium text-gray-700">
+          Show markers:
+        </label>
+        <select
+          value={limit}
+          onChange={(e) => setLimit(Number(e.target.value))}
+          className="px-3 py-2 border rounded-lg"
+        >
+          <option value={500}>Top 500</option>
+          <option value={1000}>Top 1,000</option>
+          <option value={-1}>All ({totalCount})</option>
+        </select>
+
+        <span className="ml-auto text-sm text-gray-600">
+          Showing {Math.min(limit === -1 ? totalCount : limit, totalCount)} of {totalCount} stores
+        </span>
+
+        {limit === -1 && totalCount > 1000 && (
+          <div className="ml-4 text-sm text-orange-600">
+            ⚠️ Loading all markers may slow down the browser
+          </div>
+        )}
+      </div>
+
+      {/* Map */}
+      <MapContainer>...</MapContainer>
+    </>
+  );
+};
+```
+
+#### Best Practices:
+1. Start with 500 markers by default
+2. Let users increase limit if needed
+3. Show warning for large datasets (>1000)
+4. Optional: Add city/region filter for better UX
+
+#### Additional Notes:
 - Ensure mobile responsiveness
 - Use only leaflet and react-leaflet (no additional complex packages)
 - If data has Korean region names, map them to coordinates

@@ -43,7 +43,7 @@ tmp/
 test-*/
 
 # Output directories
-output/
+output*/
 generated/
 
 # SQLite databases (except samples)
