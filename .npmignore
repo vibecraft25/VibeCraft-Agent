@@ -48,7 +48,7 @@ node_modules/
 
 # Examples and samples
 examples/
-samples/
+demo/
 test-data/
 sales-data.sqlite
 

@@ -1,4 +1,4 @@
-import { AgentCliArgs, VisualizationType } from '../types';
+import { AgentCliArgs } from '../types';
 import { validateSqlitePath, validateVisualizationType, validateOutputDir } from '../utils/validation';
 import path from 'path';
 import fs from 'fs-extra';
@@ -29,6 +29,7 @@ export class RequestParser implements IRequestParser {
       userPrompt: args.userPrompt,
       outputDir,
       projectName,
+      model: args.model,
       debug: Boolean(args.debug)
     };
   }

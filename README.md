@@ -133,22 +133,33 @@ Gemini CLI는 독립적인 도구이므로 별도 설치가 필요합니다.
 
 ## 🚀 빠른 시작
 
-### 샘플 데이터베이스로 테스트
+### 1. 샘플 데이터 생성 (첫 실행 시)
 
-프로젝트에 포함된 샘플 데이터베이스로 바로 테스트:
+```bash
+# 샘플 SQLite 데이터베이스 생성
+python3 demo/generate_timeseries_data.py
+python3 demo/generate_geospatial_data.py
+python3 demo/generate_kpi_data.py
+python3 demo/csv_to_sqlite.py
+```
+
+### 2. 시각화 앱 생성 및 실행
 
 ```bash
 # KPI 대시보드 생성
-npm run start -- \
-  --sqlite-path ./samples/sample-business.sqlite \
+vibecraft-agent \
+  --sqlite-path demo/kpi.sqlite \
   --visualization-type kpi-dashboard \
-  --user-prompt "주요 비즈니스 메트릭을 카드 형태로 표시" \
+  --user-prompt "월별 매출, 이익률, 고객 만족도를 대시보드로 표시" \
   --output-dir ./output
 
 # 생성된 앱 실행
 cd ./output/vibecraft-kpi-*
+npm install
 npm run dev
 ```
+
+브라우저에서 http://localhost:5173 접속
 
 ## 💻 사용법
 
@@ -218,44 +229,44 @@ GEMINI_MODEL=flash  # 또는 pro
 
 ## 📊 실제 사용 예시
 
-### 1. 시계열 대시보드 (월별 매출 추이)
+### 1. 시계열 분석 (IoT 센서 데이터)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path /path/to/your/database.sqlite \
+  --sqlite-path demo/timeseries.sqlite \
   --visualization-type time-series \
-  --user-prompt "월별 매출 추이를 라인 차트로 보여주고, 제품별로 구분해서 표시해주세요" \
-  --output-dir ./sales-dashboard
+  --user-prompt "센서별 온도와 습도 변화를 라인 차트로 표시하고, 위치별로 필터링할 수 있게 해주세요" \
+  --output-dir ./sensor-dashboard
 ```
 
-### 2. KPI 대시보드 (핵심 지표)
+### 2. KPI 대시보드 (비즈니스 메트릭)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path /path/to/your/database.sqlite \
+  --sqlite-path demo/kpi.sqlite \
   --visualization-type kpi-dashboard \
-  --user-prompt "총 매출, 평균 주문 금액, 베스트셀러 제품, 지역별 매출 비중을 카드 형태로 보여주세요" \
-  --output-dir ./kpi-dashboard
+  --user-prompt "총 매출, 평균 거래액, 채널별 매출 비중, 월별 이익 추이를 카드와 차트로 표시" \
+  --output-dir ./business-kpi
 ```
 
-### 3. 지리공간 시각화 (지역별 매출)
+### 3. 지리공간 시각화 (매장 위치)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path /path/to/your/database.sqlite \
+  --sqlite-path demo/geospatial.sqlite \
   --visualization-type geo-spatial \
-  --user-prompt "지역별 매출을 한국 지도에 마커로 표시하고, 클릭하면 상세 정보를 보여주세요" \
-  --output-dir ./geo-dashboard
+  --user-prompt "전국 매장 위치를 지도에 표시하고, 월 매출액에 따라 마커 색상과 크기를 다르게 표시" \
+  --output-dir ./store-map
 ```
 
-### 4. 비교 분석 (제품별/지역별)
+### 4. 비교 분석 (제품/채널)
 
 ```bash
 vibecraft-agent \
-  --sqlite-path /path/to/your/database.sqlite \
+  --sqlite-path demo/kpi.sqlite \
   --visualization-type comparison \
-  --user-prompt "제품별 매출을 막대 차트로, 지역별 매출을 파이 차트로 나란히 보여주세요" \
-  --output-dir ./comparison-dashboard
+  --user-prompt "제품 카테고리별 매출을 막대 차트로, 판매 채널별 비중을 파이 차트로 나란히 표시" \
+  --output-dir ./sales-comparison
 ```
 
 ## 🔍 생성된 앱 실행하기
@@ -316,25 +327,76 @@ GEMINI_API_KEY=your-api-key-here
 Google Cloud 설정이나 다른 복잡한 설정은 필요 없습니다. 
 Gemini API Key 하나만 있으면 바로 사용할 수 있습니다.
 
-## 📦 샘플 대시보드
+## 📦 샘플 데이터베이스
 
-`samples/` 폴더에 실제 생성된 대시보드 예제가 포함되어 있습니다:
+`demo/` 폴더에 다양한 시각화 타입을 테스트할 수 있는 샘플 데이터 생성 스크립트가 포함되어 있습니다.
 
-### 포함된 샘플:
-- **sample-business.sqlite**: 한국 비즈니스 샘플 데이터베이스
-- **time-series-dashboard**: 시계열 매출 분석 대시보드
-- **kpi-dashboard**: 핵심 비즈니스 메트릭 대시보드  
-- **geo-spatial-dashboard**: 지역별 매출 지도 시각화
+### 샘플 데이터 생성하기
 
-### 샘플 실행:
+Python 스크립트로 대용량 샘플 데이터베이스를 생성할 수 있습니다:
+
 ```bash
-# KPI 대시보드 실행 예시
-cd samples/kpi-dashboard
+# 1. CSV 데이터 생성 (각 10-17MB)
+python3 demo/generate_timeseries_data.py   # IoT 센서 데이터 (100,000 레코드)
+python3 demo/generate_geospatial_data.py   # 매장 위치 데이터 (80,000 레코드)
+python3 demo/generate_kpi_data.py          # 비즈니스 거래 데이터 (100,000 레코드)
+
+# 2. CSV를 SQLite로 변환
+python3 demo/csv_to_sqlite.py
+
+# 생성된 데이터베이스:
+# - demo/timeseries.sqlite (11.18 MB)
+# - demo/geospatial.sqlite (12.97 MB)
+# - demo/kpi.sqlite (14.72 MB)
+```
+
+자세한 스키마 정보와 데이터 구조는 [demo/DATA_INFO.md](./demo/DATA_INFO.md) 참조
+
+### 샘플 명령어
+
+생성된 데이터베이스로 각 시각화 타입 테스트:
+
+```bash
+# 1. Time-series 시각화 (센서 데이터)
+vibecraft-agent \
+  --sqlite-path demo/timeseries.sqlite \
+  --visualization-type time-series \
+  --user-prompt "센서별 온도와 습도 변화를 시계열로 표시" \
+  --output-dir ./output/timeseries-demo
+
+# 2. Geo-spatial 시각화 (매장 위치)
+vibecraft-agent \
+  --sqlite-path demo/geospatial.sqlite \
+  --visualization-type geo-spatial \
+  --user-prompt "전국 매장 위치를 지도에 표시하고 매출액별로 마커 크기 조정" \
+  --output-dir ./output/geospatial-demo
+
+# 3. KPI Dashboard (비즈니스 메트릭)
+vibecraft-agent \
+  --sqlite-path demo/kpi.sqlite \
+  --visualization-type kpi-dashboard \
+  --user-prompt "월별 매출, 이익, 고객 만족도를 카드와 차트로 표시" \
+  --output-dir ./output/kpi-demo
+
+# 4. 기존 샘플 데이터베이스 사용
+vibecraft-agent \
+  --sqlite-path demo/sample-business.sqlite \
+  --visualization-type comparison \
+  --user-prompt "제품별, 지역별 매출 비교 분석" \
+  --output-dir ./output/comparison-demo
+```
+
+### 생성된 앱 실행:
+```bash
+cd ./output/timeseries-demo
 npm install
 npm run dev
 ```
 
-자세한 내용은 [samples/README.md](./samples/README.md) 참조
+### 포함된 샘플 대시보드:
+- **time-series-dashboard**: 시계열 매출 분석 대시보드
+- **kpi-dashboard**: 핵심 비즈니스 메트릭 대시보드
+- **geo-spatial-dashboard**: 지역별 매출 지도 시각화
 
 ## 🐛 문제 해결
 
@@ -361,7 +423,7 @@ Error: Cannot find module 'react'
 **해결**: 
 ```bash
 # 각 샘플 폴더에서 개별 설치 필요
-cd samples/kpi-dashboard
+cd demo/kpi-dashboard
 npm install
 npm run dev
 ```
@@ -377,7 +439,7 @@ npm run dev    # 개발 서버 실행
 ## 📚 추가 문서
 
 - [기여 가이드](./CONTRIBUTING.md)
-- [샘플 대시보드 상세 가이드](./samples/README.md)
+- [샘플 대시보드 상세 가이드](./demo/README.md)
 
 ## 🤝 기여하기
 

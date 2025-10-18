@@ -48,7 +48,12 @@ generated/
 # SQLite databases (except samples)
 *.sqlite
 *.db
-!samples/*.sqlite
+
+# Generated sample data files
+demo/*.csv
+demo/timeseries.sqlite
+demo/geospatial.sqlite
+demo/kpi.sqlite
 
 # Claude Code
 docs/
