@@ -7,8 +7,13 @@ import { AgentCliArgs } from './types';
 import { version } from '../package.json';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env file (optional)
+try {
+  dotenv.config();
+} catch (error) {
+  // Ignore errors if .env file is not found or cwd is not accessible
+  // Environment variables can still be set via system environment
+}
 
 const program = new Command();
 
