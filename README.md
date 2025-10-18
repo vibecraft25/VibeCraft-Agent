@@ -273,7 +273,7 @@ vibecraft-agent \
 
 1. 생성된 디렉토리로 이동:
    ```bash
-   cd ./sales-dashboard
+   cd ./output/vibecraft-*
    ```
 
 2. 의존성 설치:
