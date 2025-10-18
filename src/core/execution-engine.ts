@@ -73,17 +73,13 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       // 1. Gemini CLI 존재 확인
       await this.verifyGeminiCLI();
       logs.push(this.createLog('info', 'Gemini CLI verified'));
-      
-      // 2. 작업 디렉토리 준비
-      await this.prepareWorkspace(config.workspaceDir);
-      logs.push(this.createLog('info', 'Workspace prepared'));
-      
-      // 3. 프롬프트 확인
+
+      // 2. 프롬프트 확인
       if (!config.prompt || config.prompt.trim().length === 0) {
         throw new Error('Prompt is empty');
       }
-      
-      // 4. Gemini CLI 실행
+
+      // 3. Gemini CLI 실행
       logs.push(this.createLog('info', 'Starting Gemini CLI execution'));
       const processResult = await this.runGeminiCLI(config, logs);
       
@@ -273,23 +269,7 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       );
     }
   }
-  
-  private async prepareWorkspace(workspaceDir: string): Promise<void> {
-    // 작업 디렉토리 생성
-    await fs.ensureDir(workspaceDir);
-    
-    // 기존 파일 확인 (VibeCraft가 생성한 .gemini와 public 폴더는 허용)
-    const existingFiles = await fs.readdir(workspaceDir);
-    const allowedFiles = ['.gemini', 'public'];
-    const hasDisallowedFiles = existingFiles.some(file => 
-      !file.startsWith('.') && !allowedFiles.includes(file)
-    );
-    
-    if (hasDisallowedFiles) {
-      throw new Error('Workspace directory is not empty. Please provide an empty directory.');
-    }
-  }
-  
+
   private async runGeminiCLI(
     config: ExecutionConfig,
     logs: LogEntry[]
@@ -431,17 +411,6 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
         });
         reject(error);
       });
-      
-      // 타임아웃 설정
-      if (config.timeout) {
-        setTimeout(() => {
-          if (this.activeProcesses.has(geminiProcess.pid!)) {
-            logs.push(this.createLog('error', `Execution timeout after ${config.timeout}ms`));
-            geminiProcess.kill('SIGTERM');
-            reject(new Error('Execution timeout'));
-          }
-        }, config.timeout);
-      }
     });
   }
   

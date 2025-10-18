@@ -219,7 +219,17 @@ export class VibeCraftAgent {
           this.log('info', `✅ SQLite file copied to: ${targetSqlitePath}`);
         } catch (error) {
           this.log('error', `Failed to copy SQLite file: ${error}`);
-          // Continue anyway - Gemini might handle it
+          return {
+            success: false,
+            outputPath: normalizedRequest.workingDir,
+            executionTime: Date.now() - this.startTime,
+            logs: this.logs,
+            error: {
+              code: 'SQLITE_COPY_ERROR',
+              message: `Failed to copy SQLite database: ${error instanceof Error ? error.message : String(error)}`
+            },
+            generatedFiles: []
+          };
         }
         
         // 8. Execute Gemini CLI
