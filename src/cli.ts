@@ -118,6 +118,12 @@ program.exitOverride();
 try {
   program.parse();
 } catch (err: any) {
+  // Help와 Version은 정상 종료 (exitCode가 0인 경우)
+  if (err.exitCode === 0) {
+    process.exit(0);
+  }
+
+  // 실제 에러만 에러 코드로 종료
   if (err.code === 'commander.missingMandatoryOptionValue') {
     console.error(chalk.red('Error: Missing required option'));
   } else if (err.code === 'commander.unknownOption') {

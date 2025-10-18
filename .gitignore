@@ -18,6 +18,7 @@ coverage/
 
 # OS
 .DS_Store
+CLAUDE.md
 
 # npm package files
 *.tgz
