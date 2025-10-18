@@ -333,7 +333,7 @@ python3 demo/csv_to_sqlite.py
 
 # 생성된 데이터베이스:
 # - demo/sales.sqlite (11.18 MB) - Time-series 시각화용
-# - demo/stores.sqlite (12.97 MB) - Geo-spatial 시각화용
+# - demo/stores.sqlite (176 KB) - Geo-spatial 시각화용 (1,000개 샘플)
 # - demo/metrics.sqlite (14.72 MB) - KPI Dashboard용
 ```
 

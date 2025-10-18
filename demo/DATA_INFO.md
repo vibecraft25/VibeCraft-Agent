@@ -34,9 +34,9 @@ vibecraft-agent \
 
 ---
 
-### 2. stores.sqlite (12.97 MB)
+### 2. stores.sqlite (176 KB)
 **테이블:** `stores`
-**레코드 수:** 80,000개
+**레코드 수:** 1,000개
 **도시:** 18개 주요 도시
 **용도:** Geo-spatial 시각화 테스트
 
@@ -192,10 +192,10 @@ python3 demo/csv_to_sqlite.py
 | 파일명 | 타입 | 크기 | 레코드 수 |
 |--------|------|------|-----------|
 | sales.sqlite | SQLite | 11.18 MB | 100,000 |
-| stores.sqlite | SQLite | 12.97 MB | 80,000 |
+| stores.sqlite | SQLite | 176 KB | 1,000 |
 | metrics.sqlite | SQLite | 14.72 MB | 100,000 |
 | timeseries_data.csv | CSV | 10 MB | 100,000 |
-| geospatial_data.csv | CSV | 12 MB | 80,000 |
+| geospatial_data.csv | CSV | 12 MB | 80,000 (원본) |
 | kpi_data.csv | CSV | 17 MB | 100,000 |
 
 ---

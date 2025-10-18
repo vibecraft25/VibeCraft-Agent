@@ -43,7 +43,7 @@ python3 csv_to_sqlite.py
 | 파일 | 크기 | 테이블 | 레코드 수 | 용도 |
 |------|------|--------|-----------|------|
 | sales.sqlite | 11.18 MB | sensor_readings | 100,000 | Time-series 시각화 |
-| stores.sqlite | 12.97 MB | stores | 80,000 | Geo-spatial 시각화 |
+| stores.sqlite | 176 KB | stores | 1,000 | Geo-spatial 시각화 |
 | metrics.sqlite | 14.72 MB | transactions | 100,000 | KPI Dashboard |
 
 자세한 스키마 정보는 [DATA_INFO.md](./DATA_INFO.md) 참조
