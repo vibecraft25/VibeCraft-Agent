@@ -89,36 +89,4 @@ export class RequestNormalizer {
 
     return finalWorkingDir;
   }
-  
-  // 시각화 타입에 따른 기본 설정 추가
-  getVisualizationDefaults(vizType: string): Record<string, any> {
-    const defaults: Record<string, Record<string, any>> = {
-      'time-series': {
-        chartLibrary: 'recharts',
-        defaultTimeFormat: 'YYYY-MM-DD',
-        enableAnimations: true
-      },
-      'geo-spatial': {
-        mapLibrary: 'react-leaflet',
-        defaultCenter: [37.5665, 126.9780], // Seoul
-        defaultZoom: 10
-      },
-      'gantt-chart': {
-        chartLibrary: 'gantt-chart-react',
-        enableDragDrop: true,
-        showDependencies: true
-      },
-      'kpi-dashboard': {
-        refreshInterval: 30000, // 30초
-        enableRealtime: true,
-        cardLayout: 'grid'
-      },
-      'custom': {
-        chartLibrary: 'recharts',
-        enableAllFeatures: true
-      }
-    };
-    
-    return defaults[vizType] || defaults['custom'];
-  }
 }

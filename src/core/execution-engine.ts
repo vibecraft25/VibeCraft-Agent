@@ -349,11 +349,19 @@ export class ExecutionEngine extends EventEmitter implements IExecutionEngine {
       geminiProcess.stderr.on('data', (data) => {
         const message = data.toString();
         if (message.trim()) {
-          // MCP 서버 연결 실패는 경고가 아닌 정보로 처리 (Gemini CLI가 계속 진행함)
-          const logLevel = message.includes('failed to start or connect to MCP server') ? 'info' : 'warn';
-          logs.push(this.createLog(logLevel, message.trim()));
-          
-          if (logLevel === 'warn') {
+          // MCP server connection is optional because:
+          // 1. The generated React app uses sql.js to read SQLite in-browser
+          // 2. Gemini CLI can still generate code without MCP tools
+          // 3. MCP is only used during generation, not in the final app
+          const isMcpError = message.includes('failed to start or connect to MCP server');
+
+          if (isMcpError) {
+            logs.push(this.createLog('warn',
+              'MCP server connection failed - continuing without MCP tools. ' +
+              'This is expected if mcp-server-sqlite is not installed.'
+            ));
+          } else {
+            logs.push(this.createLog('warn', message.trim()));
             this.emit('error', { processId: geminiProcess.pid!, message: message.trim() });
           }
         }

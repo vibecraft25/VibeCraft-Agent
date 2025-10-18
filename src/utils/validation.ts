@@ -43,19 +43,23 @@ export function validateVisualizationType(type: string): VisualizationType {
 export function validateOutputDir(dir: string): void {
   const resolvedDir = path.resolve(dir);
   const parentDir = path.dirname(resolvedDir);
-  
+
+  // Note: We only validate that the parent directory exists and is writable.
+  // The output-dir itself will be auto-created by RequestNormalizer if it doesn't exist.
+  // This allows users to specify non-existent paths like "./my-new-dashboard"
+
   // 부모 디렉토리가 존재하는지 확인
   if (!fs.existsSync(parentDir)) {
     throw new Error(`Parent directory does not exist: ${parentDir}`);
   }
-  
+
   // 디렉토리가 이미 존재하는 경우
   if (fs.existsSync(resolvedDir)) {
     const stats = fs.statSync(resolvedDir);
     if (!stats.isDirectory()) {
       throw new Error(`Output path exists but is not a directory: ${resolvedDir}`);
     }
-    
+
     // output 디렉토리가 존재해도 OK - 그 안에 새로운 프로젝트 폴더를 생성할 것임
     // 쓰기 권한만 확인
     try {
