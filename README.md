@@ -65,8 +65,8 @@ vibecraft-agent \
 
 ```bash
 # 1. 프로젝트 클론
-git clone https://github.com/your-org/vibecraft-agent
-cd vibecraft-agent
+git clone https://github.com/vibecraft25/VibeCraft-Agent.git
+cd VibeCraft-Agent
 
 # 2. 의존성 설치 및 빌드
 npm install
@@ -404,14 +404,14 @@ Error: Gemini CLI not found. Please install it first.
 ```
 **해결**: Gemini CLI 설치 필요
 
-### 3. 샘플 대시보드 실행 시 에러
+### 3. 생성된 앱 실행 시 의존성 에러
 ```bash
 Error: Cannot find module 'react'
 ```
-**해결**: 
+**해결**:
 ```bash
-# 각 샘플 폴더에서 개별 설치 필요
-cd demo/kpi-dashboard
+# 생성된 프로젝트 폴더에서 의존성 설치 필요
+cd ./output/vibecraft-*
 npm install
 npm run dev
 ```
@@ -427,7 +427,7 @@ npm run dev    # 개발 서버 실행
 ## 📚 추가 문서
 
 - [기여 가이드](./CONTRIBUTING.md)
-- [샘플 대시보드 상세 가이드](./demo/README.md)
+- [샘플 데이터 가이드](./demo/README.md)
 
 ## 🤝 기여하기
 

@@ -24,8 +24,8 @@
     "automation",
     "dashboard"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "pghoya2956 <ghdi7662@gmail.com>",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/vibecraft25/VibeCraft-Agent.git"
@@ -35,11 +35,12 @@
   },
   "homepage": "https://github.com/vibecraft25/VibeCraft-Agent#readme",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
     "dist/**/*",
     "templates/**/*",
+    "GEMINI.md",
     "README.md",
     "LICENSE"
   ],

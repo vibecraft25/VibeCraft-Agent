@@ -11,10 +11,7 @@ demo/
 ├── generate_geospatial_data.py    # Geo-spatial 데이터 생성 스크립트
 ├── generate_kpi_data.py            # KPI 데이터 생성 스크립트
 ├── csv_to_sqlite.py               # CSV → SQLite 변환 스크립트
-├── DATA_INFO.md                   # 생성된 데이터 상세 정보
-├── time-series-dashboard/          # 시계열 대시보드 예제
-├── kpi-dashboard/                 # KPI 메트릭 대시보드 예제
-└── geo-spatial-dashboard/         # 지도 기반 시각화 예제
+└── DATA_INFO.md                   # 생성된 데이터 상세 정보
 ```
 
 ## 🎲 샘플 데이터 생성
@@ -42,9 +39,9 @@ python3 csv_to_sqlite.py
 
 | 파일 | 크기 | 테이블 | 레코드 수 | 용도 |
 |------|------|--------|-----------|------|
-| sales.sqlite | 11.18 MB | sensor_readings | 100,000 | Time-series 시각화 |
+| sales.sqlite | 11 MB | sensor_readings | 100,000 | Time-series 시각화 |
 | stores.sqlite | 176 KB | stores | 1,000 | Geo-spatial 시각화 |
-| metrics.sqlite | 14.72 MB | transactions | 100,000 | KPI Dashboard |
+| metrics.sqlite | 15 MB | transactions | 100,000 | KPI Dashboard |
 
 자세한 스키마 정보는 [DATA_INFO.md](./DATA_INFO.md) 참조
 
@@ -60,63 +57,6 @@ python3 csv_to_sqlite.py
 - **daily_stats**: 일별 통계 (365일)
 - **regional_stats**: 지역별 통계 (17개 지역)
 - **kpi_metrics**: KPI 메트릭 (8개 지표)
-
-## 🎯 대시보드 예제
-
-### 1. Time-Series Dashboard (시계열 분석)
-월별 매출 추이를 라인 차트로 시각화
-
-```bash
-cd time-series-dashboard
-npm install
-npm run dev
-```
-
-**특징:**
-- 📈 월별 매출 트렌드
-- 📊 제품별 매출 비교
-- 🎨 인터랙티브 차트 (Recharts)
-
-### 2. KPI Dashboard (핵심 지표)
-주요 비즈니스 메트릭을 카드 형태로 표시
-
-```bash
-cd kpi-dashboard
-npm install
-npm run dev
-```
-
-**특징:**
-- 💰 총 매출, 고객 수 등 8개 KPI
-- 📈 전월 대비 증감률 표시
-- 🎯 실시간 데이터 로딩
-
-### 3. Geo-Spatial Dashboard (지도 시각화)
-지역별 매출을 한국 지도에 표시
-
-```bash
-cd geo-spatial-dashboard
-npm install
-npm run dev
-```
-
-**특징:**
-- 🗺️ 한국 지역 좌표 매핑
-- 📍 매출 수준별 색상 마커
-- 💬 클릭 시 상세 정보 팝업
-
-## 🚀 실행 방법
-
-각 대시보드는 독립적인 React 앱입니다:
-
-```bash
-# 예: KPI 대시보드 실행
-cd demo/kpi-dashboard
-npm install
-npm run dev
-
-# 브라우저에서 http://localhost:5173 접속
-```
 
 ## 💡 생성 명령어 예시
 
@@ -150,7 +90,7 @@ vibecraft-agent \
 
 ## 📝 참고사항
 
-- 모든 대시보드는 **즉시 실행 가능**한 상태입니다
-- SQLite 파일은 각 앱의 `public/data.sqlite`에 복사되어 있습니다
+- VibeCraft-Agent로 생성된 모든 앱은 **즉시 실행 가능**합니다
+- SQLite 파일은 생성된 앱의 `public/data.sqlite`에 자동으로 복사됩니다
 - 브라우저에서 sql.js를 사용하여 SQLite를 직접 읽습니다
-- TypeScript와 Tailwind CSS로 구현되어 있습니다
+- 생성된 앱은 TypeScript와 Tailwind CSS로 구현됩니다
