@@ -11,30 +11,46 @@ export const VALID_VISUALIZATION_TYPES: VisualizationType[] = [
 
 export function validateSqlitePath(sqlitePath: string): void {
   if (!fs.existsSync(sqlitePath)) {
-    throw new Error(`SQLite file not found: ${sqlitePath}`);
+    throw new Error(
+      `SQLite file not found: ${sqlitePath}\n` +
+      'Please check:\n' +
+      '  1. File path is correct\n' +
+      '  2. File exists and is readable\n' +
+      '  3. You have permission to access the file'
+    );
   }
-  
+
   const stats = fs.statSync(sqlitePath);
   if (!stats.isFile()) {
-    throw new Error(`Path is not a file: ${sqlitePath}`);
+    throw new Error(
+      `Path is not a file: ${sqlitePath}\n` +
+      'The path you specified points to a directory, not a SQLite file.\n' +
+      'Please provide the full path to the .sqlite file.'
+    );
   }
-  
+
   // 간단한 SQLite 파일 검증 (시그니처 확인)
   const buffer = Buffer.alloc(16);
   const fd = fs.openSync(sqlitePath, 'r');
   fs.readSync(fd, buffer, 0, 16, 0);
   fs.closeSync(fd);
-  
+
   const signature = buffer.toString('utf8', 0, 15);
   if (signature !== 'SQLite format 3') {
-    throw new Error('File is not a valid SQLite database');
+    throw new Error(
+      `File is not a valid SQLite database: ${sqlitePath}\n` +
+      'The file exists but does not appear to be a SQLite database.\n' +
+      'Please ensure you are using a valid .sqlite or .db file.'
+    );
   }
 }
 
 export function validateVisualizationType(type: string): VisualizationType {
   if (!VALID_VISUALIZATION_TYPES.includes(type as VisualizationType)) {
     throw new Error(
-      `Invalid visualization type: ${type}. Valid types are: ${VALID_VISUALIZATION_TYPES.join(', ')}`
+      `Invalid visualization type: ${type}\n` +
+      `Valid types are: ${VALID_VISUALIZATION_TYPES.join(', ')}\n` +
+      'Use --list-types to see descriptions of each type'
     );
   }
   return type as VisualizationType;

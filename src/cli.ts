@@ -59,10 +59,13 @@ program
       // Check for API key from environment variable
       if (!process.env.GEMINI_API_KEY) {
         console.error(chalk.red('❌ Error: GEMINI_API_KEY is not set'));
-        console.log(chalk.yellow('\nYou can provide the API key in two ways:'));
-        console.log(chalk.gray('1. Environment variable: export GEMINI_API_KEY=YOUR_API_KEY'));
-        console.log(chalk.gray('2. .env file: GEMINI_API_KEY=YOUR_API_KEY'));
-        console.log(chalk.gray('\nGet your key from: https://makersuite.google.com/app/apikey'));
+        console.log(chalk.yellow('\n📝 How to set your API key:'));
+        console.log(chalk.gray('  Option 1 - Environment variable:'));
+        console.log(chalk.cyan('    export GEMINI_API_KEY=your_api_key'));
+        console.log(chalk.gray('\n  Option 2 - .env file:'));
+        console.log(chalk.cyan('    echo "GEMINI_API_KEY=your_api_key" > .env'));
+        console.log(chalk.gray('\n  Get your API key from:'));
+        console.log(chalk.blue('    https://makersuite.google.com/app/apikey'));
         process.exit(1);
       }
       
