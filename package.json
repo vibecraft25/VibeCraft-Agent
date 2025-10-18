@@ -1,6 +1,6 @@
 {
   "name": "vibecraft-agent",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "description": "SQLite 데이터베이스를 기반으로 Gemini CLI를 활용하여 React 데이터 시각화 애플리케이션을 자동 생성하는 CLI 도구",
   "main": "dist/cli.js",
   "bin": {
