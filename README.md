@@ -41,12 +41,11 @@ NPM 패키지 페이지: https://www.npmjs.com/package/vibecraft-agent
 ### npm으로 설치 (권장)
 
 ```bash
-# 1. VibeCraft-Agent 설치
-npm install -g vibecraft-agent
+# 1. Gemini CLI 설치
+npm install -g @google/gemini-cli@0.1.9
 
-# 2. Gemini CLI 설치 (필수!)
-# Gemini CLI 설치 방법은 공식 문서 참조
-# https://github.com/google-gemini/gemini-cli
+# 2. VibeCraft-Agent 설치
+npm install -g vibecraft-agent
 
 # 3. 환경 변수 설정
 export GEMINI_API_KEY=YOUR_API_KEY
@@ -64,20 +63,20 @@ vibecraft-agent \
 ### 소스에서 설치
 
 ```bash
-# 1. 프로젝트 클론
+# 1. Gemini CLI 설치
+npm install -g @google/gemini-cli@0.1.9
+
+# 2. 프로젝트 클론
 git clone https://github.com/vibecraft25/VibeCraft-Agent.git
 cd VibeCraft-Agent
 
-# 2. 의존성 설치 및 빌드
+# 3. 의존성 설치 및 빌드
 npm install
 npm run build
 
-# 3. 환경 설정
+# 4. 환경 설정
 cp .env.example .env
 # .env 파일을 열어서 GEMINI_API_KEY 입력
-
-# 4. Gemini CLI 설치 (필수!)
-# 설치 방법은 공식 문서 참조
 
 # 5. 전역 설치
 npm link
@@ -117,19 +116,18 @@ GEMINI_API_KEY=your-api-key-here
 
 #### 3. Gemini CLI 설치 (필수)
 
-⚠️ **중요**: VibeCraft-Agent는 Gemini CLI를 사용하여 코드를 생성합니다. 
-Gemini CLI는 별도로 설치해야 합니다:
+⚠️ **중요**: VibeCraft-Agent는 Gemini CLI를 사용하여 코드를 생성합니다.
 
 ```bash
-# Gemini CLI 설치 확인
-gemini --version
+# Gemini CLI 설치 
+npm install -g @google/gemini-cli@0.1.9
 
-# 설치되어 있지 않다면 반드시 설치 필요
-# Gemini CLI 공식 저장소에서 설치 방법 확인
+# 설치 확인
+gemini --version
 ```
 
-**참고**: `npm install -g vibecraft-agent`를 실행해도 Gemini CLI는 자동으로 설치되지 않습니다.
-Gemini CLI는 독립적인 도구이므로 별도 설치가 필요합니다.
+**중요**: 다른 버전 사용 시 호환성 문제가 발생할 수 있습니다.
+반드시 0.1.9 버전을 사용하세요.
 
 ## 🚀 빠른 시작
 
@@ -403,6 +401,9 @@ cp .env.example .env
 Error: Gemini CLI not found. Please install it first.
 ```
 **해결**: Gemini CLI 설치 필요
+```bash
+npm install -g @google/gemini-cli@0.1.9
+```
 
 ### 3. 생성된 앱 실행 시 의존성 에러
 ```bash

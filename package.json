@@ -44,6 +44,9 @@
     "README.md",
     "LICENSE"
   ],
+  "peerDependencies": {
+    "@google/gemini-cli": "0.1.9"
+  },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
     "@types/glob": "^8.1.0",
