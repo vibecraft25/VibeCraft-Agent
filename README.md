@@ -42,7 +42,7 @@ NPM 패키지 페이지: https://www.npmjs.com/package/vibecraft-agent
 
 ```bash
 # 1. Gemini CLI 설치
-npm install -g @google/gemini-cli@0.1.9
+npm install -g @google/gemini-cli@0.9.0
 
 # 2. VibeCraft-Agent 설치
 npm install -g vibecraft-agent
@@ -64,7 +64,7 @@ vibecraft-agent \
 
 ```bash
 # 1. Gemini CLI 설치
-npm install -g @google/gemini-cli@0.1.9
+npm install -g @google/gemini-cli@0.9.0
 
 # 2. 프로젝트 클론
 git clone https://github.com/vibecraft25/VibeCraft-Agent.git
@@ -120,14 +120,11 @@ GEMINI_API_KEY=your-api-key-here
 
 ```bash
 # Gemini CLI 설치 
-npm install -g @google/gemini-cli@0.1.9
+npm install -g @google/gemini-cli@0.9.0
 
 # 설치 확인
 gemini --version
 ```
-
-**중요**: 다른 버전 사용 시 호환성 문제가 발생할 수 있습니다.
-반드시 0.1.9 버전을 사용하세요.
 
 ## 🚀 빠른 시작
 
@@ -402,7 +399,7 @@ Error: Gemini CLI not found. Please install it first.
 ```
 **해결**: Gemini CLI 설치 필요
 ```bash
-npm install -g @google/gemini-cli@0.1.9
+npm install -g @google/gemini-cli@0.9.0
 ```
 
 ### 3. 생성된 앱 실행 시 의존성 에러
