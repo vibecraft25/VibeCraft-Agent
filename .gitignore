@@ -52,9 +52,9 @@ generated/
 
 # Generated sample data files
 demo/*.csv
-demo/timeseries.sqlite
-demo/geospatial.sqlite
-demo/kpi.sqlite
+!demo/metrics.sqlite
+!demo/stores.sqlite
+!demo/sales.sqlite
 
 # Claude Code
 docs/
